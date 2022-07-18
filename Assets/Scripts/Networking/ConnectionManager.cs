@@ -9,6 +9,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
     [SerializeField] public TextMeshProUGUI txt_StatusText;
     [SerializeField] public Canvas canvasMain, canvasHost, canvasJoin;
     [SerializeField] ReadCSV_ForbiddenNames GetForbiddenNames;
+    [SerializeField] ModelSelection modelSelection;
 
     private string str_RoomCode;
 
@@ -20,6 +21,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
         txt_StatusText.gameObject.SetActive(false);
         canvasHost.gameObject.SetActive(false);
         canvasJoin.gameObject.SetActive(false);
+        PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.ConnectUsingSettings();
     }
 
@@ -32,8 +34,9 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     public void OnClickCreate()
     {
-        if (NameCheck()) {
-            PhotonNetwork.NickName = "Teacher_" + PhotonNetwork.NickName;
+        if (NameCheck())
+        {
+            PhotonNetwork.NickName = "Teacher_" + PhotonNetwork.NickName + "_" + modelSelection.int_ModelNumber;
             canvasMain.gameObject.SetActive(false);
             canvasHost.gameObject.SetActive(true);
         }
@@ -43,7 +46,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
     {
         if (NameCheck())
         {
-            PhotonNetwork.NickName = "Student_" + PhotonNetwork.NickName;
+            PhotonNetwork.NickName = "Student_" + PhotonNetwork.NickName + "_" + modelSelection.int_ModelNumber;
             canvasMain.gameObject.SetActive(false);
             canvasJoin.gameObject.SetActive(true);
         }
