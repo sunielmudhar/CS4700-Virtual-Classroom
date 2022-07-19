@@ -7,10 +7,10 @@ public class ParticipantController : MonoBehaviour
     // This script will handle all of the participant's movement and transformation
 
     [SerializeField] float fl_MouseSensitivity, fl_MovementSpeed, fl_SmoothTime;
-    [SerializeField] GameObject camera;
+    [SerializeField] GameObject cameraHolder;
 
     float fl_VerticalLookRotation;
-    bool bl_Grounded;
+    bool bl_CanMove = true;
     Vector3 smoothMovementVelocity;
     Vector3 movementAmount;
 
@@ -23,8 +23,23 @@ public class ParticipantController : MonoBehaviour
 
     void Update()
     {
-        ParticipantMovement();
-        ParticipantPanning();
+        if (bl_CanMove)
+        {
+            ParticipantMovement();
+            ParticipantPanning();
+        }
+    }
+
+    public void InActivity(int index)
+    {
+        if (index == 1)
+        {
+            bl_CanMove = false;
+        }
+        else
+        {
+            bl_CanMove = true;
+        }
     }
 
     void FixedUpdate()
@@ -36,7 +51,7 @@ public class ParticipantController : MonoBehaviour
     {
         Vector3 movementDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
-        movementAmount = Vector3.SmoothDamp(movementAmount, movementDirection * (Input.GetKey(KeyCode.W) ? fl_MovementSpeed : 1), ref smoothMovementVelocity, fl_SmoothTime);
+        movementAmount = Vector3.SmoothDamp(movementAmount, movementDirection, ref smoothMovementVelocity, fl_SmoothTime);
     } 
 
     public void ParticipantPanning()
@@ -46,6 +61,6 @@ public class ParticipantController : MonoBehaviour
         fl_VerticalLookRotation += Input.GetAxisRaw("Mouse Y") * fl_MouseSensitivity;
         fl_VerticalLookRotation = Mathf.Clamp(fl_VerticalLookRotation, -90f, 90f);
 
-        camera.transform.localEulerAngles = Vector3.left * fl_VerticalLookRotation;
+        cameraHolder.transform.localEulerAngles = Vector3.left * fl_VerticalLookRotation;
     }
 }

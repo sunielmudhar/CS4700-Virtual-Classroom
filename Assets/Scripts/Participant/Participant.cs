@@ -9,7 +9,7 @@ public class Participant : MonoBehaviour
     [SerializeField] Permissions ParticipantPermissions;
     [SerializeField] TextMeshProUGUI txt_ParticipantName;
     [SerializeField] GameObject mesh1, mesh2;
-    PhotonView PV;
+    public PhotonView PV;
 
     private string str_ParticipantName;
     private string str_ParticipantType;
@@ -61,6 +61,26 @@ public class Participant : MonoBehaviour
             this.mesh2.SetActive(true);
             this.mesh1.SetActive(false);
         }
+    }
+
+    public string CheckData(string parameter)
+    {
+        if (parameter.Equals("name"))
+        {
+            return str_ParticipantName;
+        }
+        else if (parameter.Equals("type"))
+        {
+            return str_ParticipantType;
+        }
+        else if (parameter.Equals("meshCode"))
+        {
+            return str_ParticipantMeshCode;
+        }
+        else
+        {
+            return null;
+        }               
     }
 
     public void ChangeType()    //This function will enable the host/teacher to grant or revoke permissions from other participants
