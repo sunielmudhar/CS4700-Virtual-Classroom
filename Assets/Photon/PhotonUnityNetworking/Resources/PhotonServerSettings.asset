@@ -46,6 +46,10 @@ MonoBehaviour:
   - Update
   - StartActivity
   - UpdateAll
+  - StartWhiteBoard
+  - EndWhiteBoard
+  - AssignGroup
+  - UpdateNextParticipantsGroup
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

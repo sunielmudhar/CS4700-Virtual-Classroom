@@ -5,8 +5,7 @@ using Photon.Pun;
 
 public class ParticipantSpawner : MonoBehaviour
 {
-
-    public GameObject participantPrefab;
+    public GameObject participantPrefab, classManager;
     public Transform spawnPoint;
         
     void Start()

@@ -41,15 +41,12 @@ public class Participant : MonoBehaviour
         str_ParticipantType = str_PhotonName[0];
         str_ParticipantName = str_PhotonName[1];
         str_ParticipantMeshCode = str_PhotonName[2];
-
-        Debug.Log(str_ParticipantName);
     }
 
     [PunRPC]
     public void InitialiseParticipantAssets(string str_MeshCode, string str_Name)
     {
         txt_ParticipantName.text = str_Name;
-        Debug.Log("Participant Mesh Code: " + str_MeshCode);
 
         if (str_MeshCode.Equals("0"))
         {

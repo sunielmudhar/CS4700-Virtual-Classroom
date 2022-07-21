@@ -2,38 +2,57 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using System.IO;
 
 public class ActivityManager : MonoBehaviour
 {
-    [SerializeField] Canvas whiteboardActivityCanvas;
+    [SerializeField] GameObject whiteboardActivity;
 
-
-
+    private GameObject whiteboardActivityCanvas;
     private GameObject participant;
-    private PhotonView PV;
-    private string activity;
 
     void Start()
     {
         participant = GameObject.Find("Participant(Clone)");
-        PV = GetComponent<PhotonView>();
-        Debug.Log("CheckData works! Data Type = " + participant.GetComponent<Participant>().CheckData("type"));
     }
 
-    [PunRPC]
-    public void StartActivity(string activityName)
+    public void StartActivity(string activityName, int numberOfGroups)
     {
-        if (activityName.Equals("whiteboard") && participant.GetComponent<Participant>().CheckData("type").Equals("Student"))
+        if (activityName.Equals("whiteboard"))
+        {
+            for(int i = 1; i <= numberOfGroups; i++)
+            {
+                PhotonNetwork.Instantiate(Path.Combine("Prefabs/Activities", "Whiteboard"), new Vector3(0f, 0f, 0f), Quaternion.identity);
+                SetVisibility(activityName);
+            }
+        }
+
+    }
+
+    public void SetVisibility(string activityName)
+    {
+        whiteboardActivityCanvas = GameObject.Find("Whiteboard(Clone)");
+
+        if (PhotonNetwork.LocalPlayer.IsLocal && activityName.Equals("whiteboard") && participant.GetComponent<Participant>().CheckData("type").Equals("Student"))
         {
             whiteboardActivityCanvas.gameObject.SetActive(true);
-            activity = activityName;
-            UpdateAll();
+            participant.GetComponent<ParticipantController>().InActivity(1);
+        }
+        else
+        {
+            whiteboardActivityCanvas.gameObject.SetActive(false);
+        }
+    }
+
+    public void EndActivity(string activityName)
+    {
+        whiteboardActivityCanvas = GameObject.Find("Whiteboard(Clone)");
+
+        if (PhotonNetwork.LocalPlayer.IsLocal && activityName.Equals("whiteboard") && participant.GetComponent<Participant>().CheckData("type").Equals("Student"))
+        {
+            whiteboardActivity.gameObject.SetActive(false);
+            participant.GetComponent<ParticipantController>().InActivity(0);
         }
     }
     
-    public void UpdateAll()
-    {
-        if(PV.IsMine)
-            PV.RPC("StartActivity", RpcTarget.All, activity);
-    }
 }
