@@ -6,10 +6,12 @@ using TMPro;
 
 public class Participant : MonoBehaviour
 {
-    [SerializeField] Permissions ParticipantPermissions;
+    //[SerializeField] Permissions ParticipantPermissions;
     [SerializeField] TextMeshProUGUI txt_ParticipantName;
     [SerializeField] GameObject mesh1, mesh2;
-    public PhotonView PV;
+
+    private GroupData groupData;
+    private PhotonView PV;
 
     private string str_ParticipantName;
     private string str_ParticipantType;
@@ -18,13 +20,14 @@ public class Participant : MonoBehaviour
     void Start()
     {
         PV = GetComponent<PhotonView>();
+        groupData = GetComponent<GroupData>();
 
         if (PV.IsMine)
         {
             GetParameters();
-            InitialiseParticipantAssets(str_ParticipantMeshCode, str_ParticipantName);
+            InitialiseParticipantAssets(str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
 
-            PV.RPC("InitialiseParticipantAssets", RpcTarget.All, str_ParticipantMeshCode, str_ParticipantName);
+            PV.RPC("InitialiseParticipantAssets", RpcTarget.All, str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
         }
         else
         {
@@ -44,7 +47,7 @@ public class Participant : MonoBehaviour
     }
 
     [PunRPC]
-    public void InitialiseParticipantAssets(string str_MeshCode, string str_Name)
+    public void InitialiseParticipantAssets(string str_MeshCode, string str_Name, string str_Type)
     {
         txt_ParticipantName.text = str_Name;
 
@@ -57,6 +60,15 @@ public class Participant : MonoBehaviour
         {
             this.mesh2.SetActive(true);
             this.mesh1.SetActive(false);
+        }
+
+        if (str_Type.Equals("Teacher"))
+        {
+            this.gameObject.tag = "Teacher";
+        }
+        else if (str_Type.Equals("Student"))
+        {
+            this.gameObject.tag = "Student";
         }
     }
 
@@ -80,6 +92,12 @@ public class Participant : MonoBehaviour
         }               
     }
 
+    public void UpdateData(string parameter, int index)
+    {
+        if (parameter.Equals("SetGroupID"))
+            PV.RPC("SetGroupID", RpcTarget.All, index);
+    }
+
     public void ChangeType()    //This function will enable the host/teacher to grant or revoke permissions from other participants
     {
         if (/*Enter trigger type*/false)
@@ -96,5 +114,11 @@ public class Participant : MonoBehaviour
                 str_ParticipantType = "Student";
             }
         }
+    }
+
+    [PunRPC]
+    public void SetGroupID(int iD)
+    {
+        this.groupData.SetGroupID(iD);
     }
 }

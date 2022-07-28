@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using System.IO;
 
 public class ParticipantSpawner : MonoBehaviour
 {
@@ -16,7 +15,7 @@ public class ParticipantSpawner : MonoBehaviour
     [PunRPC]
     public void InstantiateParticipants()
     {
-        GameObject participant = PhotonNetwork.Instantiate(participantPrefab.name, spawnPoint.position, Quaternion.identity);
+        GameObject participant = PhotonNetwork.Instantiate(Path.Combine("Prefabs/Participant", "Participant"), spawnPoint.position, Quaternion.identity);
     }
 
 }

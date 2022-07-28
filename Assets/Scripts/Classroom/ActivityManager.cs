@@ -1,14 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using System.IO;
 
 public class ActivityManager : MonoBehaviour
 {
-    [SerializeField] GameObject whiteboardActivity;
-
-    private GameObject whiteboardActivityCanvas;
+    private GameObject whiteboardActivity;
     private GameObject participant;
 
     void Start()
@@ -26,32 +22,26 @@ public class ActivityManager : MonoBehaviour
                 SetVisibility(activityName);
             }
         }
-
     }
 
     public void SetVisibility(string activityName)
     {
-        whiteboardActivityCanvas = GameObject.Find("Whiteboard(Clone)");
 
-        if (PhotonNetwork.LocalPlayer.IsLocal && activityName.Equals("whiteboard") && participant.GetComponent<Participant>().CheckData("type").Equals("Student"))
+        whiteboardActivity = GameObject.Find("Whiteboard(Clone)");
+
+        if (activityName.Equals("whiteboard"))
         {
-            whiteboardActivityCanvas.gameObject.SetActive(true);
-            participant.GetComponent<ParticipantController>().InActivity(1);
+            whiteboardActivity.GetComponentInChildren<WhiteboardManager>().SetActive(true, participant);
         }
-        else
-        {
-            whiteboardActivityCanvas.gameObject.SetActive(false);
-        }
+
     }
 
     public void EndActivity(string activityName)
     {
-        whiteboardActivityCanvas = GameObject.Find("Whiteboard(Clone)");
 
-        if (PhotonNetwork.LocalPlayer.IsLocal && activityName.Equals("whiteboard") && participant.GetComponent<Participant>().CheckData("type").Equals("Student"))
+        if (activityName.Equals("whiteboard"))
         {
-            whiteboardActivity.gameObject.SetActive(false);
-            participant.GetComponent<ParticipantController>().InActivity(0);
+            whiteboardActivity.GetComponentInChildren<WhiteboardManager>().SetActive(false, participant);
         }
     }
     

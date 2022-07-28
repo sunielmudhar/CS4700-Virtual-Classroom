@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class ParticipantController : MonoBehaviour
 {
@@ -8,6 +7,8 @@ public class ParticipantController : MonoBehaviour
 
     [SerializeField] float fl_MouseSensitivity, fl_MovementSpeed, fl_SmoothTime;
     [SerializeField] GameObject cameraHolder;
+
+    private PhotonView PV;
 
     float fl_VerticalLookRotation;
     bool bl_CanMove = true;
@@ -19,11 +20,12 @@ public class ParticipantController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        PV = GetComponent<PhotonView>();
     }
 
     void Update()
     {
-        if (bl_CanMove)
+        if (PV.IsMine && bl_CanMove)
         {
             ParticipantMovement();
             ParticipantPanning();
@@ -44,7 +46,8 @@ public class ParticipantController : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.MovePosition(rb.position + transform.TransformDirection(movementAmount) * Time.fixedDeltaTime);
+        if (bl_CanMove)
+            rb.MovePosition(rb.position + transform.TransformDirection(movementAmount) * Time.fixedDeltaTime);
     }
 
     public void ParticipantMovement()

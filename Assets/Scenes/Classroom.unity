@@ -451,6 +451,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 594489c5f5655314289477a8d7a517f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  int_NumberOfGroups: 0
+  int_CurrentGroupID: 0
   intxt_NumberOfGroups: {fileID: 709943228}
   teacherPanelCanvas: {fileID: 55100662}
   activityManager: {fileID: 1599472887}
@@ -1127,7 +1129,7 @@ GameObject:
   - component: {fileID: 963194226}
   m_Layer: 0
   m_Name: Main Camera
-  m_TagString: MainCamera
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2194,7 +2196,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 502047636}
         m_TargetAssemblyTypeName: TeacherPannel, Assembly-CSharp
-        m_MethodName: UpdateOtherClients
+        m_MethodName: UpdateAllClients
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2287,7 +2289,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56890202aa0874942b1b006fbb1f42e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whiteboardActivity: {fileID: 2036485175859116327, guid: a2a6256306afcbe4e8e6b16102fdd32f, type: 3}
 --- !u!114 &1599472890
 MonoBehaviour:
   m_ObjectHideFlags: 0
