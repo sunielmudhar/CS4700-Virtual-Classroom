@@ -380,6 +380,7 @@ MonoBehaviour:
   fl_MovementSpeed: 6
   fl_SmoothTime: 0.01
   cameraHolder: {fileID: 9180894462391872346}
+  bl_CanMove: 1
 --- !u!54 &5372650746034401478
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -1,48 +1,30 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using System.IO;
 
 public class Draw : MonoBehaviour
 {
+    [SerializeField] public GameObject brush, drawPlane;
+    [SerializeField] float fl_BrushSize = 0.01f;
 
-    public void Drawing(bool state)
+    void Update()
     {
-        if (state)
+        if (Input.GetMouseButton(0))
         {
-            Mesh line = new Mesh();
+            var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
 
-            Vector3[] verticies = new Vector3[4];
-            Vector2[] uv = new Vector2[4];
-            int[] triangles = new int[4];
-
-            verticies[0] = new Vector3(-1, +1);
-            verticies[1] = new Vector3(-1, -1);
-            verticies[2] = new Vector3(+1, -1);
-            verticies[3] = new Vector3(+1, +1);
-
-            uv[0] = Vector2.zero;
-            uv[1] = Vector2.zero;
-            uv[2] = Vector2.zero;
-            uv[3] = Vector2.zero;
-
-            triangles[0] = 0;
-            triangles[1] = 3;
-            triangles[2] = 1;
-            triangles[3] = 1;
-            triangles[4] = 3;
-            triangles[5] = 2;
-
-            line.vertices = verticies;
-            line.uv = uv;
-            line.triangles = triangles;
-            line.MarkDynamic();
-
-            GetComponent<MeshFilter>().mesh = line;
+            if (Physics.Raycast(Ray, out hit))
+            {
+                Quaternion rotation = Quaternion.Euler(0f, 0f, 90f);
+                var go = PhotonNetwork.Instantiate(Path.Combine("Prefabs/Activities", "Brush"), hit.point + Vector3.up * 0.1f, Quaternion.identity);
+                go.transform.localScale = Vector3.one * fl_BrushSize;
+            }
         }
     }
 
-    private void Update()
+    public void Drawing(bool state)
     {
-        transform.position = MouseController.GetMousePosition();
+
     }
 }

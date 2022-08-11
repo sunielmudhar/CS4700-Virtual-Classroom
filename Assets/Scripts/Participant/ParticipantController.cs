@@ -11,7 +11,7 @@ public class ParticipantController : MonoBehaviour
     private PhotonView PV;
 
     float fl_VerticalLookRotation;
-    bool bl_CanMove = true;
+    [SerializeField] bool bl_CanMove = true;
     Vector3 smoothMovementVelocity;
     Vector3 movementAmount;
 

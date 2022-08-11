@@ -33,7 +33,6 @@ public class Participant : MonoBehaviour
         {
             Destroy(GetComponentInChildren<Camera>().gameObject);
         }
-
     }
 
     [PunRPC]

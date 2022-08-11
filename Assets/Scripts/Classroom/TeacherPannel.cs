@@ -1,25 +1,26 @@
 using UnityEngine;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
-using System;
 using TMPro;
 using System.Collections.Generic;
+using System;
 
 public class TeacherPannel : MonoBehaviour
 {
-    private GameObject participant;
+    private GameObject participant, table;
     private PhotonView PV;
     private string str_CurrentTask;
 
-    List<GameObject> roomGameObjectsList = new List<GameObject>();
-    List<GameObject> studentsList = new List<GameObject>();
-    List<GameObject> whiteboardsList = new List<GameObject>();
+    private static List<GameObject> roomGameObjectsList = new List<GameObject>();
+    private static List<GameObject> studentsList = new List<GameObject>();
+    private static List<GameObject> whiteboardsList = new List<GameObject>();
     Scene classroom;
 
     [SerializeField] public int int_NumberOfGroups, int_CurrentGroupID = 0;
-    [SerializeField] public TMP_InputField intxt_NumberOfGroups;
+    [SerializeField] public TMP_InputField intxt_NumberOfGroups, intxt_Activity;
     [SerializeField] public Canvas teacherPanelCanvas;
-    [SerializeField] public GameObject activityManager, btn_StartWBA, btn_EndWBA;
+    [SerializeField] public GameObject activityManager, btn_StartWBA, btn_EndWBA, mainCamera, drawingCamera;
+    [SerializeField] public GameObject[] tableGroup_1, tableGroup_2, tableGroup_3, tableGroup_4;
 
     bool bl_ActivityManagerOpen = false, bl_GroupSet;
 
@@ -27,8 +28,9 @@ public class TeacherPannel : MonoBehaviour
     {
         classroom = SceneManager.GetActiveScene();
         PV = GetComponent<PhotonView>();
-        participant = GameObject.Find("Participant(Clone)");
+        participant = GameObject.Find("CurrentParticipant");
         teacherPanelCanvas.gameObject.SetActive(false);
+        mainCamera = GameObject.Find("CameraHolder");
     }
 
     // Update is called once per frame
@@ -40,6 +42,7 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
+    [PunRPC]
     public void PopulateLists()
     {
         classroom.GetRootGameObjects(roomGameObjectsList);
@@ -51,7 +54,6 @@ public class TeacherPannel : MonoBehaviour
                 if (!studentsList.Contains(gameObject))
                 {
                     studentsList.Add(gameObject);
-                    Debug.Log("Student added");
                 }
             }
             else if (gameObject.tag.Equals("Whiteboard"))
@@ -76,16 +78,23 @@ public class TeacherPannel : MonoBehaviour
         participant.GetComponent<ParticipantController>().InActivity(0);
     }
 
-    [PunRPC]
     public void StartWhiteBoard()
     {
         int_NumberOfGroups = int.Parse(intxt_NumberOfGroups.text);
-        btn_StartWBA.gameObject.SetActive(false);
-        btn_EndWBA.gameObject.SetActive(true);
-        activityManager.GetComponent<ActivityManager>().StartActivity("whiteboard", int_NumberOfGroups);
-        PopulateLists();
-        CreateGroups();
-        str_CurrentTask = "whiteboard";
+
+        if (int_NumberOfGroups > 4 || int_NumberOfGroups == 0 || int_NumberOfGroups < 0) //Limiting the max number of groups due to the classroom size and tables in the scene
+        {
+            Debug.LogError("Please enter a number between 1 and 4");
+        }
+        else
+        {
+            btn_StartWBA.gameObject.SetActive(false);
+            btn_EndWBA.gameObject.SetActive(true);
+            activityManager.GetComponent<ActivityManager>().StartActivity("whiteboard", int_NumberOfGroups);
+            PopulateLists();
+            CreateGroups();
+            str_CurrentTask = "whiteboard";
+        }
     }
 
     [PunRPC]
@@ -99,7 +108,6 @@ public class TeacherPannel : MonoBehaviour
 
     public void CreateGroups()
     {
- 
         foreach (GameObject student in studentsList)
         {
             student.GetComponent<Participant>().UpdateData("SetGroupID", GetGroupNumber());
@@ -109,7 +117,6 @@ public class TeacherPannel : MonoBehaviour
         {
             whiteboard.GetComponent<WhiteboardManager>().UpdateData("SetGroupID", GetGroupNumber());
         }
-
     }
 
     public int GetGroupNumber()
@@ -130,9 +137,50 @@ public class TeacherPannel : MonoBehaviour
         {
             if (PV.IsMine)
             {
+                PV.RPC("PopulateLists", RpcTarget.All);
                 PV.RPC("EndWhiteBoard", RpcTarget.All);
+                PV.RPC("PositionStudents", RpcTarget.All, "stand");
+            }
+        }
+        else if (str_CurrentTask.Equals("whiteboard"))
+        {
+            if (PV.IsMine)
+            {
+                PV.RPC("PositionStudents", RpcTarget.All, "sit");
             }
         }
     }
 
+    [PunRPC]
+    public void PositionStudents(string position)
+    {
+        table = GameObject.Find("Table");
+
+        if (position.Equals("sit"))
+        {
+            table.GetComponent<TableScript>().Sitting();
+            mainCamera.SetActive(false);
+            drawingCamera.SetActive(true);
+            //drawingCamera.tag = "MainCamera";
+        }
+        else if (position.Equals("stand"))
+        {
+            table.GetComponent<TableScript>().StandUp();
+            mainCamera.SetActive(true);
+            drawingCamera.SetActive(false);
+            drawingCamera.tag = "Drawing Camera";
+        }
+    }
+
+    public static List<GameObject> GetList(string listType)
+    {
+        if (listType.Equals("whiteboardList"))
+        {
+            return whiteboardsList;
+        }
+        else
+        {
+            return null;
+        }
+    }
 }

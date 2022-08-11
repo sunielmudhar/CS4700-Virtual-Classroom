@@ -5,13 +5,11 @@ public class WhiteboardManager : MonoBehaviour
 {
     private GroupData groupData;
     private PhotonView PV;
-    private Draw draw;
 
     void Awake()
     {
         PV = GetComponent<PhotonView>();
         groupData = GetComponent<GroupData>();
-        draw = GetComponent<Draw>();
     }
 
     public void UpdateData(string parameter, int index)
@@ -31,29 +29,18 @@ public class WhiteboardManager : MonoBehaviour
     public void SetActive(bool state, GameObject participant)
     {
         Awake();
-        if (state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student") && groupData.GetGroupID() == participant.GetComponent<GroupData>().GetGroupID())
+        if (state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student") && this.groupData.GetGroupID() == participant.GetComponent<GroupData>().GetGroupID())
         {
             this.gameObject.SetActive(true);
-            participant.GetComponent<ParticipantController>().InActivity(1);
-            EnableDrawing(true);
         }
-        else
+        else if ((state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student") && this.groupData.GetGroupID() != participant.GetComponent<GroupData>().GetGroupID()) || participant.tag.Equals("Teacher"))
         {
             this.gameObject.SetActive(false);
-            participant.GetComponent<ParticipantController>().InActivity(0);
-            EnableDrawing(false);
+        }
+        else if (!state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student"))
+        {
+            this.gameObject.SetActive(false);
         }
     }
 
-    public void EnableDrawing(bool state)
-    {
-        if (state)
-        {
-            draw.Drawing(true);
-        }
-        else
-        {
-            draw.Drawing(false);
-        }
-    }
 }

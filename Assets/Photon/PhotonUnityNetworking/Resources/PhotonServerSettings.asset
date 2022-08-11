@@ -51,6 +51,9 @@ MonoBehaviour:
   - AssignGroup
   - UpdateNextParticipantsGroup
   - SetGroupID
+  - PopulateLists
+  - PositionStudents
+  - OnPhotonSerializeView
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

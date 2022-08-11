@@ -8,6 +8,8 @@ TagManager:
   - Student
   - Teacher
   - Whiteboard
+  - Main Camera
+  - Drawing Camera
   layers:
   - Default
   - TransparentFX
