@@ -9,7 +9,11 @@ TagManager:
   - Teacher
   - Whiteboard
   - Main Camera
-  - Drawing Camera
+  - Plane
+  - Drawing Camera Group 1
+  - Drawing Camera Group 2
+  - Drawing Camera Group 3
+  - Drawing Camera Group 4
   layers:
   - Default
   - TransparentFX

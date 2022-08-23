@@ -12,9 +12,10 @@ public class Permissions : MonoBehaviour
         {
             //Teacher permissions
         }
-        else
+        else if (permType.Equals("Student"))
         {
             //Student permissions
         }
     }
+
 }

@@ -4,10 +4,12 @@ using System.IO;
 
 public class ActivityManager : MonoBehaviour
 {
-    private GameObject whiteboard, participant;
-    void Start()
+    private GameObject whiteboard;
+    PhotonView PV;
+
+    private void Start()
     {
-        participant = GameObject.Find("CurrentParticipant");
+        PV = GetComponent<PhotonView>();
     }
 
     public void StartActivity(string activityName, int numberOfGroups)
@@ -17,7 +19,8 @@ public class ActivityManager : MonoBehaviour
             for(int i = 1; i <= numberOfGroups; i++)
             {
                 whiteboard = PhotonNetwork.Instantiate(Path.Combine("Prefabs/Activities", "Whiteboard"), new Vector3(0f, 0f, 0f), Quaternion.identity);
-                SetVisibility(activityName, true);
+                PV.RPC("SetVisibility", RpcTarget.All, activityName, true);
+                //SetVisibility(activityName, true);
             }
         }
     }
@@ -30,8 +33,13 @@ public class ActivityManager : MonoBehaviour
         }
     }
 
+    [PunRPC]
     public void SetVisibility(string activityName, bool state)
     {
+
+        GameObject participant = GameObject.Find("CurrentParticipant");
+        whiteboard = GameObject.Find("Whiteboard(Clone)");
+
         if (activityName.Equals("whiteboard"))
         {
             if (state)
@@ -40,10 +48,13 @@ public class ActivityManager : MonoBehaviour
             }
             else if (!state)
             {
-                foreach (GameObject whiteboard in TeacherPannel.GetList("whiteboardList"))
+                foreach (GameObject whiteboardL in TeacherPannel.GetList("whiteboardList"))
                 {
-                    whiteboard.GetComponentInChildren<WhiteboardManager>().SetActive(false, participant);
+                    if(whiteboardL != null)
+                        Destroy(whiteboardL); //Destroy the whiteboards to prevent the instantiation of duplicates
                 }
+
+                TeacherPannel.ModifyList("whiteboardClear", null);  //Clear the whiteboard list
             }
         }
     }

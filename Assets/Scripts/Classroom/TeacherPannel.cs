@@ -7,22 +7,22 @@ using System;
 
 public class TeacherPannel : MonoBehaviour
 {
-    private GameObject participant, table;
+    private GameObject participant;
     private PhotonView PV;
     private string str_CurrentTask;
+    Scene classroom;
 
     private static List<GameObject> roomGameObjectsList = new List<GameObject>();
     private static List<GameObject> studentsList = new List<GameObject>();
     private static List<GameObject> whiteboardsList = new List<GameObject>();
-    Scene classroom;
 
     [SerializeField] public int int_NumberOfGroups, int_CurrentGroupID = 0;
     [SerializeField] public TMP_InputField intxt_NumberOfGroups, intxt_Activity;
     [SerializeField] public Canvas teacherPanelCanvas;
-    [SerializeField] public GameObject activityManager, btn_StartWBA, btn_EndWBA, mainCamera, drawingCamera;
-    [SerializeField] public GameObject[] tableGroup_1, tableGroup_2, tableGroup_3, tableGroup_4;
+    [SerializeField] public GameObject activityManager, btn_StartWBA, btn_EndWBA;
+    [SerializeField] public GameObject tableGroup_1, tableGroup_2, tableGroup_3, tableGroup_4;
 
-    bool bl_ActivityManagerOpen = false, bl_GroupSet;
+    bool bl_ActivityManagerOpen = false, bl_GroupSet = false;
 
     void Start()
     {
@@ -30,7 +30,6 @@ public class TeacherPannel : MonoBehaviour
         PV = GetComponent<PhotonView>();
         participant = GameObject.Find("CurrentParticipant");
         teacherPanelCanvas.gameObject.SetActive(false);
-        mainCamera = GameObject.Find("CameraHolder");
     }
 
     // Update is called once per frame
@@ -60,6 +59,7 @@ public class TeacherPannel : MonoBehaviour
             {
                 if (!whiteboardsList.Contains(gameObject))
                 {
+                    Debug.Log("Whiteboard");
                     whiteboardsList.Add(gameObject);
                 }
             }
@@ -86,14 +86,19 @@ public class TeacherPannel : MonoBehaviour
         {
             Debug.LogError("Please enter a number between 1 and 4");
         }
+        else if (int_NumberOfGroups == 1 && studentsList.Count > 8)
+        {
+            Debug.LogError("Only 8 students are allowed in a group");
+        }
         else
         {
+            str_CurrentTask = "whiteboard";
             btn_StartWBA.gameObject.SetActive(false);
             btn_EndWBA.gameObject.SetActive(true);
             activityManager.GetComponent<ActivityManager>().StartActivity("whiteboard", int_NumberOfGroups);
             PopulateLists();
             CreateGroups();
-            str_CurrentTask = "whiteboard";
+            UpdateAllClients();
         }
     }
 
@@ -137,8 +142,7 @@ public class TeacherPannel : MonoBehaviour
         {
             if (PV.IsMine)
             {
-                PV.RPC("PopulateLists", RpcTarget.All);
-                PV.RPC("EndWhiteBoard", RpcTarget.All);
+                PV.RPC("EndWhiteBoard", RpcTarget.Others);
                 PV.RPC("PositionStudents", RpcTarget.All, "stand");
             }
         }
@@ -146,6 +150,7 @@ public class TeacherPannel : MonoBehaviour
         {
             if (PV.IsMine)
             {
+                PV.RPC("PopulateLists", RpcTarget.Others);
                 PV.RPC("PositionStudents", RpcTarget.All, "sit");
             }
         }
@@ -154,21 +159,34 @@ public class TeacherPannel : MonoBehaviour
     [PunRPC]
     public void PositionStudents(string position)
     {
-        table = GameObject.Find("Table");
-
         if (position.Equals("sit"))
         {
-            table.GetComponent<TableScript>().Sitting();
-            mainCamera.SetActive(false);
-            drawingCamera.SetActive(true);
-            //drawingCamera.tag = "MainCamera";
+            foreach (GameObject student in studentsList)
+            {
+                if (student.GetComponent<GroupData>().GetGroupID() == 1)
+                {
+                    tableGroup_1.GetComponent<TableScript>().Sitting(student);
+                }
+                else if (student.GetComponent<GroupData>().GetGroupID() == 2)
+                {
+                    tableGroup_2.GetComponent<TableScript>().Sitting(student);
+                }
+                else if (student.GetComponent<GroupData>().GetGroupID() == 3)
+                {
+                    tableGroup_3.GetComponent<TableScript>().Sitting(student);
+                }
+                else if (student.GetComponent<GroupData>().GetGroupID() == 4)
+                {
+                    tableGroup_4.GetComponent<TableScript>().Sitting(student);
+                }
+            }
         }
         else if (position.Equals("stand"))
         {
-            table.GetComponent<TableScript>().StandUp();
-            mainCamera.SetActive(true);
-            drawingCamera.SetActive(false);
-            drawingCamera.tag = "Drawing Camera";
+            foreach (GameObject student in studentsList)
+            {
+                tableGroup_1.GetComponent<TableScript>().StandUp(student);
+            }
         }
     }
 
@@ -181,6 +199,18 @@ public class TeacherPannel : MonoBehaviour
         else
         {
             return null;
+        }
+    }
+
+    public static void ModifyList(string listType, GameObject gameObject)
+    {
+        if (listType.Equals("whiteboard"))
+        {
+            whiteboardsList.Remove(gameObject);
+        }
+        else if (listType.Equals("whiteboardClear"))
+        {
+            whiteboardsList.Clear();
         }
     }
 }
