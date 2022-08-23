@@ -3,58 +3,58 @@ using Photon.Pun;
 
 public class WhiteboardManager : MonoBehaviour
 {
-    private GroupData groupData;
     private PhotonView PV;
     private bool bl_Turn = false;
-    [SerializeField] GameObject mainCamera, drawingCamera;
+    [SerializeField] GameObject mainCamera, participant;
+    [SerializeField] public GameObject[] drawingCameras;
 
     //Set it so that drawing is only enabled while the activity is running
 
     void Awake()
     {
         PV = GetComponent<PhotonView>();
-        groupData = GetComponent<GroupData>();
         mainCamera = GameObject.Find("CameraHolder");
-        drawingCamera = GameObject.FindGameObjectWithTag("Drawing Camera Group 1");
+        participant = GameObject.Find("CurrentParticipant");
     }
 
-    public void UpdateData(string parameter, int index)
-    {
-        Awake();    //Need to trigger start function manually as it is instantiated inactive
-        if (parameter.Equals("SetGroupID"))
-            PV.RPC("SetGroupID", RpcTarget.All, index);
-    }
-
-    [PunRPC]
-    public void SetGroupID(int iD)
-    {
-        Awake();    //Need to trigger again for the student, maybe change to Awake?
-        this.groupData.SetGroupID(iD);
-    }
-
-    public void SetActive(bool state, GameObject participant)
+    public void SetActive(bool state)
     {
         Awake();
 
-        if (state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student") && this.groupData.GetGroupID() == participant.GetComponent<GroupData>().GetGroupID())
+        if (state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student"))
         {
             this.gameObject.SetActive(true);
-            mainCamera.SetActive(false);
-            drawingCamera.SetActive(true);
-            drawingCamera.tag = "MainCamera";
+            SetCamera(state);
             Draw.CanDraw(true);
         }
-        else if ((state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student") && this.groupData.GetGroupID() != participant.GetComponent<GroupData>().GetGroupID()) || participant.tag.Equals("Teacher"))
+        else if ((state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student")) || participant.tag.Equals("Teacher"))
         {
             this.gameObject.SetActive(false);
         }
         else if (!state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student"))
         {
             this.gameObject.SetActive(false);
-            mainCamera.SetActive(true);
-            drawingCamera.SetActive(false);
-            drawingCamera.tag = "Drawing Camera Group 1";
+            SetCamera(state);
             Draw.CanDraw(false);
+        }
+
+    }
+
+    public void SetCamera(bool state)
+    {
+        int int_ParticipantGroupID = participant.GetComponent<GroupData>().GetGroupID() - 1;    //Create an int to make the camera selection more dynamic
+
+        if (state)
+        {
+            mainCamera.SetActive(false);
+            drawingCameras[int_ParticipantGroupID].SetActive(true);
+            drawingCameras[int_ParticipantGroupID].tag = "MainCamera";
+        }
+        else
+        {
+            mainCamera.SetActive(true);
+            drawingCameras[int_ParticipantGroupID].SetActive(false);
+            drawingCameras[int_ParticipantGroupID].tag = "Drawing Camera";
         }
     }
 

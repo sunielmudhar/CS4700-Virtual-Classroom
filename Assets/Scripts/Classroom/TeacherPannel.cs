@@ -14,7 +14,7 @@ public class TeacherPannel : MonoBehaviour
 
     private static List<GameObject> roomGameObjectsList = new List<GameObject>();
     private static List<GameObject> studentsList = new List<GameObject>();
-    private static List<GameObject> whiteboardsList = new List<GameObject>();
+    private static List<GameObject> whiteboardsList = new List<GameObject>();   //Potentially remove
 
     [SerializeField] public int int_NumberOfGroups, int_CurrentGroupID = 0;
     [SerializeField] public TMP_InputField intxt_NumberOfGroups, intxt_Activity;
@@ -95,10 +95,10 @@ public class TeacherPannel : MonoBehaviour
             str_CurrentTask = "whiteboard";
             btn_StartWBA.gameObject.SetActive(false);
             btn_EndWBA.gameObject.SetActive(true);
-            activityManager.GetComponent<ActivityManager>().StartActivity("whiteboard", int_NumberOfGroups);
             PopulateLists();
             CreateGroups();
             UpdateAllClients();
+            activityManager.GetComponent<ActivityManager>().StartActivity("whiteboard", int_NumberOfGroups);
         }
     }
 
@@ -116,11 +116,6 @@ public class TeacherPannel : MonoBehaviour
         foreach (GameObject student in studentsList)
         {
             student.GetComponent<Participant>().UpdateData("SetGroupID", GetGroupNumber());
-        }
-
-        foreach (GameObject whiteboard in whiteboardsList)
-        {
-            whiteboard.GetComponent<WhiteboardManager>().UpdateData("SetGroupID", GetGroupNumber());
         }
     }
 
@@ -190,6 +185,7 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
+    //Might no longer need
     public static List<GameObject> GetList(string listType)
     {
         if (listType.Equals("whiteboardList"))
