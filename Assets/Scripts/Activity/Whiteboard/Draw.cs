@@ -32,6 +32,17 @@ public class Draw : MonoBehaviour
         {
             Debug.Log("Cannot draw");
         }
+
+        if (Input.GetMouseButton(1))
+        {
+            var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(Ray, out hit) && hit.collider.gameObject.tag.Equals("Brush"))
+            {
+                PhotonNetwork.Destroy(hit.collider.gameObject);
+            }
+        }
     }
 
     public static void CanDraw(bool state)

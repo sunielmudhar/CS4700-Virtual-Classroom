@@ -13,7 +13,7 @@ public class WhiteboardManager : MonoBehaviour
     void Awake()
     {
         PV = GetComponent<PhotonView>();
-        mainCamera = GameObject.Find("CameraHolder");
+        mainCamera = GameObject.Find("Camera");
         participant = GameObject.Find("CurrentParticipant");
     }
 
@@ -46,13 +46,13 @@ public class WhiteboardManager : MonoBehaviour
 
         if (state)
         {
-            mainCamera.SetActive(false);
+            mainCamera.tag = "Untagged";
             drawingCameras[int_ParticipantGroupID].SetActive(true);
             drawingCameras[int_ParticipantGroupID].tag = "MainCamera";
         }
         else
         {
-            mainCamera.SetActive(true);
+            mainCamera.tag = "MainCamera";
             drawingCameras[int_ParticipantGroupID].SetActive(false);
             drawingCameras[int_ParticipantGroupID].tag = "Drawing Camera";
         }

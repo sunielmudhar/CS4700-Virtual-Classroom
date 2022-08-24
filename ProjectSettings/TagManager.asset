@@ -11,6 +11,8 @@ TagManager:
   - Main Camera
   - Plane
   - Drawing Camera
+  - Brush
+  - Line
   layers:
   - Default
   - TransparentFX
