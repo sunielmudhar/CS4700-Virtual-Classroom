@@ -4,10 +4,13 @@ using System.IO;
 
 public class LineGen : MonoBehaviour
 {
-    public GameObject LinePrefab, participant, line, newLine;
-    public float fl_DelayTime = 0.1f;
-    [SerializeField] Line activeline;
+    [SerializeField] public GameObject linePrefab, participant, line;
+    [SerializeField] Line currentLine;
+    [SerializeField] static bool bl_CanDraw = false;
     PhotonView PV;
+
+    Vector3 mousePosVec;
+    RaycastHit hit;
 
     void Start()
     {
@@ -17,55 +20,58 @@ public class LineGen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        fl_DelayTime -= Time.deltaTime;
+        participant = GameObject.Find("CurrentParticipant");
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && participant.tag.Equals("Student") && bl_CanDraw)
         {
-            var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(Ray, out hit))   //Check to see if the raycast is hitting the plane
+            if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.tag.Equals("Plane"))   //Check to see if the raycast is hitting the plane
             {
-                line = PhotonNetwork.Instantiate(Path.Combine("Prefabs/Activities", "Line"), hit.point + Vector3.up * 0.1f, Quaternion.identity);
-                activeline = line.GetComponent<Line>();
+                PV.RPC("drawFunction", RpcTarget.All, hit.point);
             }
         }
 
-        if (activeline != null && Input.GetMouseButton(0))
+        if (currentLine != null && Input.GetMouseButton(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Vector3 mousePosVec = ray.origin + ray.direction * 10;
 
-            float[] fl_MousePos = new float[] { mousePosVec.x, mousePosVec.y, mousePosVec.z };
+            if (Physics.Raycast(ray, out hit))
+            {
+                mousePosVec = hit.point;
+                PV.RPC("helperFunction", RpcTarget.All, "notNullActiveLine", mousePosVec);
+            }
 
-            PV.RPC("drawFunction", RpcTarget.All, "notNullActiveLine", fl_MousePos);
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            PV.RPC("drawFunction", RpcTarget.All, "mouseUp", null);
+            PV.RPC("helperFunction", RpcTarget.All, "mouseUp", null);
         }
     }
 
     [PunRPC]
-    public void drawFunction(string action, float[] fl_mousePos)
+    public void drawFunction(Vector3 hitPoint)
     {
+        line = Instantiate(linePrefab, hitPoint, Quaternion.identity);
+        currentLine = line.GetComponent<Line>();
+    }
 
+    [PunRPC]
+    public void helperFunction(string action, Vector3 mousePosVec)
+    {
         if (action.Equals("mouseUp"))
         {
-            activeline = null;
+            currentLine = null;
         }
         else if (action.Equals("notNullActiveLine"))
         {
-            if (activeline == null)
-            {
-                newLine = GameObject.FindWithTag("Line");
-                activeline = line.GetComponent<Line>();
-            }
-
-            Vector3 mousePos = new Vector3(fl_mousePos[0], fl_mousePos[1], fl_mousePos[2]);
-            activeline.UpdateLine(mousePos);
+            currentLine.UpdateLine(mousePosVec);
         }
+    }
 
+    public static void CanDraw(bool state)
+    {
+        bl_CanDraw = state;
     }
 }

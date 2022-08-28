@@ -5,30 +5,30 @@ using UnityEngine;
 public class Line : MonoBehaviour
 {
     public LineRenderer lineR;
-    List<Vector3> points;
+    List<Vector3> linePoints;
 
     public void UpdateLine(Vector3 position)
     {
         
-        if (points == null)
+        if (linePoints == null)
         {
-            points = new List<Vector3>();
-            SetPoint(position);
+            linePoints = new List<Vector3>();
+            SetLinePoint(position);
             return;
         }
 
-        if (Vector3.Distance(points.Last(), position) > 0.1f)
+        if (Vector3.Distance(linePoints.Last(), position) > 0.01f)
         {
-            SetPoint(position);
+            SetLinePoint(position);
         }
         
     }
 
-    void SetPoint(Vector3 point)
+    void SetLinePoint(Vector3 point)
     {
-        points.Add(point);
+        linePoints.Add(point);
 
-        lineR.positionCount = points.Count;
-        lineR.SetPositions(points.ToArray());
+        lineR.positionCount = linePoints.Count;
+        lineR.SetPositions(linePoints.ToArray());
     }
 }

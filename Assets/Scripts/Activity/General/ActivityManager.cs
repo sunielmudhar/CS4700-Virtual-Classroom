@@ -4,7 +4,7 @@ using System.IO;
 
 public class ActivityManager : MonoBehaviour
 {
-    [SerializeField] private GameObject whiteboard;
+    [SerializeField] private GameObject whiteboard, markingManager;
     PhotonView PV;
 
     private void Start()
@@ -16,7 +16,11 @@ public class ActivityManager : MonoBehaviour
     {
         if (activityName.Equals("whiteboard"))
         {
-            PV.RPC("SetVisibility", RpcTarget.All, activityName, true);
+            PV.RPC("ActivityInitialiser", RpcTarget.All, activityName, true, 0);
+        }
+        else if (activityName.Equals("whiteboardMarking"))
+        {
+            PV.RPC("ActivityInitialiser", RpcTarget.Others, activityName, null, numberOfGroups);
         }
     }
 
@@ -24,12 +28,12 @@ public class ActivityManager : MonoBehaviour
     {
         if (activityName.Equals("whiteboard"))
         {
-            SetVisibility(activityName, false);
+            ActivityInitialiser(activityName, false, 0);
         }
     }
 
     [PunRPC]
-    public void SetVisibility(string activityName, bool state)
+    public void ActivityInitialiser(string activityName, bool state, int numberOfGroups)
     {
         if (activityName.Equals("whiteboard"))
         {
@@ -41,6 +45,10 @@ public class ActivityManager : MonoBehaviour
             {
                 whiteboard.GetComponentInChildren<WhiteboardManager>().SetActive(false);
             }
+        }
+        else if (activityName.Equals("whiteboardMarking"))
+        {
+            markingManager.GetComponent<MarkingManager>().StartMarkingActivity("whiteboard", numberOfGroups);
         }
     }
 }

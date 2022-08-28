@@ -30,7 +30,7 @@ public class ModelSelection : MonoBehaviour
         }
         else if (index < 0)
         {
-            index = img_ModelSelection.Length;
+            index = img_ModelSelection.Length - 1;
         }
 
         Debug.Log("Meshnumber: " + index);

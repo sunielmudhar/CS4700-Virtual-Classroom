@@ -12,9 +12,11 @@ public class TeacherPannel : MonoBehaviour
     private string str_CurrentTask;
     Scene classroom;
 
+    //REMOVE ALL WHITEBOARD LISTS
+
     private static List<GameObject> roomGameObjectsList = new List<GameObject>();
     private static List<GameObject> studentsList = new List<GameObject>();
-    private static List<GameObject> whiteboardsList = new List<GameObject>();   //Potentially remove
+    private static List<Marks> markList = new List<Marks>();
 
     [SerializeField] public int int_NumberOfGroups, int_CurrentGroupID = 0;
     [SerializeField] public TMP_InputField intxt_NumberOfGroups, intxt_Activity;
@@ -53,14 +55,6 @@ public class TeacherPannel : MonoBehaviour
                 if (!studentsList.Contains(gameObject))
                 {
                     studentsList.Add(gameObject);
-                }
-            }
-            else if (gameObject.tag.Equals("Whiteboard"))
-            {
-                if (!whiteboardsList.Contains(gameObject))
-                {
-                    Debug.Log("Whiteboard");
-                    whiteboardsList.Add(gameObject);
                 }
             }
         }
@@ -109,6 +103,19 @@ public class TeacherPannel : MonoBehaviour
         btn_EndWBA.gameObject.SetActive(false);
         activityManager.GetComponent<ActivityManager>().EndActivity("whiteboard");
         str_CurrentTask = "EndWhiteBoard";
+        //Enable the marking canvas button
+    }
+
+    public void StartMarking(int numberOfGroups)
+    {
+        if (int_NumberOfGroups == 0)
+        {
+            int_NumberOfGroups = numberOfGroups;
+        }
+
+        btn_StartWBA.gameObject.SetActive(false);
+        activityManager.GetComponent<ActivityManager>().StartActivity("whiteboardMarking", int_NumberOfGroups);
+        str_CurrentTask = "MarkingWhiteBoard";
     }
 
     public void CreateGroups()
@@ -185,28 +192,11 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
-    //Might no longer need
-    public static List<GameObject> GetList(string listType)
+    public static void ModifyList(string listType, Marks submittedStudentMark)
     {
-        if (listType.Equals("whiteboardList"))
+        if (listType.Equals("addMarks"))
         {
-            return whiteboardsList;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public static void ModifyList(string listType, GameObject gameObject)
-    {
-        if (listType.Equals("whiteboard"))
-        {
-            whiteboardsList.Remove(gameObject);
-        }
-        else if (listType.Equals("whiteboardClear"))
-        {
-            whiteboardsList.Clear();
+            markList.Add(submittedStudentMark);
         }
     }
 }

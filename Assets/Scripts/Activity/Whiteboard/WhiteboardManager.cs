@@ -25,9 +25,9 @@ public class WhiteboardManager : MonoBehaviour
         {
             this.gameObject.SetActive(true);
             SetCamera(state);
-            Draw.CanDraw(true);
+            LineGen.CanDraw(true);
         }
-        else if ((state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Student")) || participant.tag.Equals("Teacher"))
+        else if (state && PhotonNetwork.LocalPlayer.IsLocal && participant.tag.Equals("Teacher"))
         {
             this.gameObject.SetActive(false);
         }
@@ -35,7 +35,7 @@ public class WhiteboardManager : MonoBehaviour
         {
             this.gameObject.SetActive(false);
             SetCamera(state);
-            Draw.CanDraw(false);
+            LineGen.CanDraw(false);
         }
 
     }
@@ -56,11 +56,6 @@ public class WhiteboardManager : MonoBehaviour
             drawingCameras[int_ParticipantGroupID].SetActive(false);
             drawingCameras[int_ParticipantGroupID].tag = "Drawing Camera";
         }
-    }
-
-    public void SetTurn()
-    {
-        
     }
 
     public void EndTurn()
