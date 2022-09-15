@@ -5,24 +5,36 @@ using UnityEngine;
 
 public class CSVMaker : MonoBehaviour
 {
-    public string str_CSVName;
-    public bool bl_CSVCreated;
+    public string str_CSVName = "/test.csv";
+    public bool bl_CSVCreated = false;
     [SerializeField] TMP_InputField TMP_InputField;
 
-    public void CreateMarksCSV(List<Marks> studentMarks)
+    //Need to change this to check which marks are being exported, group or student?
+
+    public void CreateMarksCSV(List<string[]> studentMarks, string currentTask)
     {
-        if(!bl_CSVCreated)
+        TextWriter markCSVMaker = new StreamWriter(str_CSVName, true);
+
+        if (currentTask.Equals("EndWhiteboardMarking"))
         {
-            str_CSVName = Application.dataPath + TMP_InputField.text;
-            TextWriter markCSVMaker = new StreamWriter(str_CSVName, true);
+            markCSVMaker.WriteLine("Activity Name, Participant Name, Participant Group Number, Group Marks");
+            markCSVMaker.WriteLine(",,,1,2,3,4");
+        }
+        else if (currentTask.Equals("EndPeerMarking"))
+        {
+            markCSVMaker.WriteLine("Activity Name, Participant Name, Participant Group Number, Peer Name, Peer Feedback");
         }
 
-        for (int i = 0; i < studentMarks.Count; i++)
+        foreach (string[] marks in studentMarks)
         {
-            foreach (Marks marks in studentMarks)
+            markCSVMaker.WriteLine();
+
+            for (int i = 0; i < marks.Length; i++)
             {
-                markCSVMaker.WriteLine();
+                markCSVMaker.Write(marks[i] + ",");
             }
         }
+
+        markCSVMaker.Close();
     }
 }

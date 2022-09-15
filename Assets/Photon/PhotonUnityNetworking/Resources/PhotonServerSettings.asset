@@ -60,6 +60,12 @@ MonoBehaviour:
   - SendMarks
   - SubmitMarks
   - ActivityInitialiser
+  - SendList
+  - GetList
+  - EndActivity
+  - AssetInitialiser
+  - EndTimer
+  - SendRequest
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

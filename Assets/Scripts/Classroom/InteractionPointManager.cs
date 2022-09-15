@@ -6,10 +6,10 @@ public class InteractionPointManager : MonoBehaviour, IPunObservable
 
     //Sets the seat as occupied and then syncs across other clients
 
-    private bool bl_IsOccupied = false;
+    [SerializeField] private bool bl_IsOccupied = false;
     PhotonView PV;
 
-    public void Awake()
+    void Start()
     {
         PV = GetComponent<PhotonView>();
     }
@@ -27,6 +27,7 @@ public class InteractionPointManager : MonoBehaviour, IPunObservable
         return bl_IsOccupied;
     }
 
+    
     [PunRPC]
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {

@@ -27,7 +27,7 @@ public class Participant : MonoBehaviour
             GetParameters();
             InitialiseParticipantAssets(str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
 
-            PV.RPC("InitialiseParticipantAssets", RpcTarget.All, str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
+            PV.RPC("InitialiseParticipantAssets", RpcTarget.Others, str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
         }
         else
         {
@@ -49,6 +49,7 @@ public class Participant : MonoBehaviour
     public void InitialiseParticipantAssets(string str_MeshCode, string str_Name, string str_Type)
     {
         txt_ParticipantName.text = str_Name;
+        this.str_ParticipantName = str_Name;
 
         if (str_MeshCode.Equals("0"))
         {
@@ -97,22 +98,24 @@ public class Participant : MonoBehaviour
             PV.RPC("SetGroupID", RpcTarget.All, index);
     }
 
-    public void ChangeType()    //This function will enable the host/teacher to grant or revoke permissions from other participants
+    public void ChangeType(string type)    //This function will enable the host/teacher to grant or revoke permissions from other participants
     {
-        if (/*Enter trigger type*/false)
+        if (type.Equals("teacher"))
         {
             if (PhotonNetwork.IsMasterClient)   //Check if Master Client/Host
             {
                 str_ParticipantType = "Teacher";
             }
         }
-        else if (/*Enter trigger type*/false)
+        else if (type.Equals("student"))
         {
             if (PhotonNetwork.IsMasterClient)
             {
                 str_ParticipantType = "Student";
             }
         }
+
+        //PV.RPC("InitialiseParticipantAssets", RpcTarget.All, str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
     }
 
     [PunRPC]

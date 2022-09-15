@@ -5,58 +5,175 @@ using UnityEngine;
 
 public class MarkingManager : MonoBehaviour
 {
-    [SerializeField] public Transform markingCanvas;
-    [SerializeField] public GameObject groupMarkPrefab;
-    [SerializeField] public TMP_Dropdown[] drp_MarksInput;
+    [SerializeField] public Transform markingCanvas, submitCanvas;
+    [SerializeField] public GameObject groupMarkPrefab, peerMarkPrefab;
+    [SerializeField] public GameObject[] drp_MarksInput, intxt_Feedback;
+
+    private List<GameObject> studentGroupMembers = new List<GameObject>();
+    private List<GameObject> markingGameObjectList = new List<GameObject>();
 
     PhotonView PV;
     GameObject participant;
+    string str_activityName;
+    int int_numberOfGroups;
+    bool bl_CanMark = false, bl_MarkingCanvasOpen = false;
 
     void Start()
     {
-        PV = GetComponent<PhotonView>();    
+        PV = GetComponent<PhotonView>();
+        participant = GameObject.Find("CurrentParticipant");
+    }
+
+    void Update()
+    {
+        if (bl_CanMark && Input.GetKeyDown(KeyCode.LeftShift) && !bl_MarkingCanvasOpen)
+        {
+            markingCanvas.gameObject.SetActive(true);
+            submitCanvas.gameObject.SetActive(true);
+            bl_MarkingCanvasOpen = true;
+        }
+        else if ((bl_CanMark && Input.GetKeyDown(KeyCode.LeftShift) && bl_MarkingCanvasOpen) || !bl_CanMark)
+        {
+            markingCanvas.gameObject.SetActive(false);
+            submitCanvas.gameObject.SetActive(false);
+            bl_MarkingCanvasOpen = false;
+        }
     }
 
     public void StartMarkingActivity(string activityName, int numberOfGroups)
     {
-        if (activityName.Equals("whiteboard"))   //Getting the end activity name as this means that the whiteboard task has ended and theres something to mark
+        LineGen.CanDraw(false);     //Ensure that students cannot draw
+        bl_CanMark = true;
+        int_numberOfGroups = numberOfGroups;
+        str_activityName = activityName;
+        InstantiateUIAssets();
+        Debug.Log("StartMarking Activity started");
+    }
+
+    public void EndMarkingActivity(string activityName)
+    {
+        LineGen.CanDraw(false);     //Ensure that students cannot draw
+        bl_CanMark = false;
+        str_activityName = activityName;
+
+        foreach (GameObject uiObject in markingGameObjectList)
         {
-            LineGen.CanDraw(false);     //Ensure that students cannot draw
-            markingCanvas.gameObject.SetActive(true);
-            InstantiateUIAssets(numberOfGroups);
-            //marksArray = new int[numberOfGroups];
-            Debug.Log("StartMarking Activity started");
+            Destroy(uiObject);
+        }
+
+        markingGameObjectList.Clear();
+
+        Debug.Log("Marking Activity Ended");
+    }
+
+    public void InstantiateUIAssets()
+    {
+        if (str_activityName.Equals("whiteboard"))
+        {
+            if (int_numberOfGroups == 0)
+            {
+                int_numberOfGroups = 1;
+            }
+
+            for (int i = 0; i < int_numberOfGroups; i++)
+            {
+                GameObject groupMarkingUI = Instantiate(groupMarkPrefab, markingCanvas);
+                groupMarkingUI.GetComponentInChildren<TextMeshProUGUI>().text = "Group " + i + 1;
+                markingGameObjectList.Add(groupMarkingUI);
+                drp_MarksInput[i] = groupMarkingUI;
+
+                if (i + 1 != participant.GetComponent<GroupData>().GetGroupID())
+                {
+                    drp_MarksInput[i].GetComponentInChildren<TMP_Dropdown>().gameObject.SetActive(false);
+                }
+            }
+        }
+        else if (str_activityName.Equals("peerAssessment"))
+        {
+            int index = 0;
+
+            foreach (GameObject student in TeacherPannel.GetList("studentList"))
+            {
+                if ((student.GetComponent<GroupData>().GetGroupID() == participant.GetComponent<GroupData>().GetGroupID()) && (student.GetComponent<Participant>().CheckData("name") != participant.GetComponent<Participant>().CheckData("name")))
+                {
+                    GameObject peerMarkingUI = Instantiate(peerMarkPrefab, markingCanvas);
+                    peerMarkingUI.GetComponentInChildren<TextMeshProUGUI>().text = student.GetComponent<Participant>().CheckData("name");
+                    markingGameObjectList.Add(peerMarkingUI);
+                    studentGroupMembers.Add(student);
+                    intxt_Feedback[index] = peerMarkingUI;
+                    index++;
+                }
+            }
         }
     }
 
-    public void InstantiateUIAssets(int numberOfGroups)
+    public void AssignMarks()
     {
-        for (int i = 0; i < numberOfGroups; i++)
+        //Wanted to do this with a custom type called Marks that had several sections
+        //relevant to each field of the marks, but photon does not allow the serialization of custom types
+        //so had to do a string array instead
+
+        if (str_activityName.Equals("whiteboard"))
         {
-            Debug.Log("Instantiating participants");
-            GameObject groupMarkingUI = Instantiate(groupMarkPrefab, markingCanvas);
+            string[] m = new string[3 + int_numberOfGroups];
+
+            m[0] = str_activityName;
+            m[1] = participant.GetComponent<Participant>().CheckData("name");
+            m[2] = participant.GetComponent<GroupData>().GetGroupID().ToString();
+
+            for (int i = 0; i < drp_MarksInput.Length; i++)
+            {
+                if (drp_MarksInput[i] != null)
+                {
+                    m[i + 3] = drp_MarksInput[i].GetComponentInChildren<TMP_Dropdown>().value.ToString();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            Debug.Log("Marks Submitted");
+
+            PV.RPC("SubmitMarks", RpcTarget.Others, "addMarksGroup", m);
         }
-    }
-
-    public void AssignMarks(string activityName)
-    {
-        Marks m = new Marks();
-
-        for (int i = 0; i < drp_MarksInput.Length; i++)
+        else if (str_activityName.Equals("peerAssessment"))
         {
-            m.int_Marks[i] = drp_MarksInput[i].value;
+            string[] m = new string[5];
+            int index = 0;
+
+            foreach (GameObject student in studentGroupMembers)
+            {
+                m[0] = str_activityName;
+                m[1] = participant.GetComponent<Participant>().CheckData("name");
+                m[2] = participant.GetComponent<GroupData>().GetGroupID().ToString();
+                m[3] = student.GetComponent<Participant>().CheckData("name");
+
+                if (intxt_Feedback[index] != null)
+                {
+                    m[4] = intxt_Feedback[index].GetComponentInChildren<TMP_InputField>().text;
+                }
+                else
+                {
+                    m[4] = "student did not supply feedback";
+                }
+
+                Debug.Log("Marks Submitted");
+                PV.RPC("SubmitMarks", RpcTarget.Others, "addMarksPeer", m);
+                index++;
+            }
         }
-
-        m.str_ActivityName = activityName;
-        m.str_StudentName = participant.GetComponent<Participant>().CheckData("name");
-        m.int_StudentGroupNumber = participant.GetComponent<GroupData>().GetGroupID();
-
-        PV.RPC("SendMarks", RpcTarget.MasterClient, m);
     }
 
     [PunRPC]
-    public void SubmitMarks(Marks outGoingMarkList)
+    public void SubmitMarks(string listType, string[] outGoingMarkList)
     {
-        TeacherPannel.ModifyList("addMarks", outGoingMarkList);
+        PV = GetComponent<PhotonView>();
+
+        if (participant.tag.Equals("Teacher"))
+        {
+            Debug.Log(listType + " Marks Recieved");
+            TeacherPannel.ModifyList(listType, outGoingMarkList);
+        }
     }
 }
