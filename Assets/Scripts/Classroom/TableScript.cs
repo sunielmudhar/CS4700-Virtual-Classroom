@@ -5,23 +5,43 @@ public class TableScript : MonoBehaviour
     public Transform[] chairPoint;
     public Vector3 sittingPlace;
 
-    public void Sitting(GameObject participant)
+    public int Position(GameObject participant, int sentChairPoint)
     {
-        foreach (Transform chair in chairPoint)
+        int index = -1;
+
+        if (sentChairPoint == -1)
         {
-            if (!chair.GetComponent<InteractionPointManager>().IsOccupied())
+            foreach (Transform chair in chairPoint)
             {
-                participant.GetComponent<ParticipantController>().InActivity(1);
+                index++;
 
-                //Move the participant to the seat
-                participant.transform.position = Vector3.Lerp(participant.transform.position, chair.position + sittingPlace, 1);
-                participant.transform.rotation = Quaternion.Slerp(participant.transform.rotation, chair.rotation, 1);
-
-                chair.GetComponent<InteractionPointManager>().Occupy(true);
-
-                break;  //Break once a chair is found
+                if (!chair.GetComponent<InteractionPointManager>().IsOccupied())
+                {
+                    SitDown(participant, chair);
+                    break;  //Break once a chair is found
+                }
             }
         }
+        else
+        {
+            Transform chair = chairPoint[sentChairPoint];
+            SitDown(participant, chair);
+        }
+
+        return index;
+    }
+
+    public void SitDown(GameObject participant, Transform chair)
+    {
+
+        participant.GetComponent<ParticipantController>().InActivity(1);
+
+        //Move the participant to the seat
+        participant.transform.position = Vector3.Lerp(participant.transform.position, chair.position + sittingPlace, 1);
+        participant.transform.rotation = Quaternion.Slerp(participant.transform.rotation, chair.rotation, 1);
+
+        chair.GetComponent<InteractionPointManager>().Occupy(true);
+
     }
 
     public void StandUp(GameObject participant)

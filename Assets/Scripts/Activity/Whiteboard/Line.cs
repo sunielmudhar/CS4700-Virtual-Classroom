@@ -5,7 +5,26 @@ using UnityEngine;
 public class Line : MonoBehaviour
 {
     public LineRenderer lineR;
+    private int int_LineRef;
     List<Vector3> linePoints;
+
+    public void GenerateRef()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            int_LineRef = int_LineRef + Random.Range(1, 9);
+        }
+    }
+
+    public void SetLineRef(int lineRef)
+    {
+        int_LineRef = lineRef;
+    }
+
+    public int GetLineRef()
+    {
+        return int_LineRef;
+    }
 
     public void UpdateLine(Vector3 position)
     {

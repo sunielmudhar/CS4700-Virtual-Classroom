@@ -1,11 +1,13 @@
 using Photon.Pun;
 using UnityEngine;
 using System.IO;
+using System.Collections.Generic;
 
 public class LineGen : MonoBehaviour
 {
     [SerializeField] public GameObject linePrefab, participant, line;
-    [SerializeField] Line currentLine;
+    [SerializeField] public Line currentLine;
+    [SerializeField] List<Line> currentLineList = new List<Line>();
     [SerializeField] static bool bl_CanDraw = false;
     PhotonView PV;
 
@@ -20,53 +22,72 @@ public class LineGen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        participant = GameObject.Find("CurrentParticipant");
-
-        if (Input.GetMouseButtonDown(0) && participant.tag.Equals("Student") && bl_CanDraw)
+        if (bl_CanDraw)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            participant = GameObject.Find("CurrentParticipant");
 
-            if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.tag.Equals("Plane"))   //Check to see if the raycast is hitting the plane
+            if (Input.GetMouseButtonDown(0) && participant.tag.Equals("Student"))
             {
-                PV.RPC("drawFunction", RpcTarget.All, hit.point);
-            }
-        }
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (currentLine != null && Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                mousePosVec = hit.point;
-                PV.RPC("helperFunction", RpcTarget.All, "notNullActiveLine", mousePosVec);
+                if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.tag.Equals("Plane"))   //Check to see if the raycast is hitting the plane
+                {
+                    line = Instantiate(linePrefab, hit.point, Quaternion.identity);
+                    Line newLine = line.GetComponent<Line>();
+                    newLine.GenerateRef();
+                    currentLineList.Add(newLine);
+                    currentLine = newLine;
+                    PV.RPC("drawFunction", RpcTarget.Others, hit.point, newLine.GetLineRef());
+                }
             }
 
-        }
+            if (currentLine != null && Input.GetMouseButton(0))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            PV.RPC("helperFunction", RpcTarget.All, "mouseUp", null);
+                if (Physics.Raycast(ray, out hit))
+                {
+                    mousePosVec = hit.point;
+                    PV.RPC("helperFunction", RpcTarget.All, "notNullActiveLine", mousePosVec, currentLine.GetLineRef());
+                }
+
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                PV.RPC("helperFunction", RpcTarget.All, "mouseUp", null, currentLine.GetLineRef());
+            }
         }
     }
 
     [PunRPC]
-    public void drawFunction(Vector3 hitPoint)
+    public void drawFunction(Vector3 hitPoint, int lineRef)
     {
         line = Instantiate(linePrefab, hitPoint, Quaternion.identity);
-        currentLine = line.GetComponent<Line>();
+        Line newLine = line.GetComponent<Line>();
+        newLine.SetLineRef(lineRef);
+        currentLineList.Add(newLine);
     }
 
     [PunRPC]
-    public void helperFunction(string action, Vector3 mousePosVec)
+    public void helperFunction(string action, Vector3 mousePosVec, int lineRef)
     {
-        if (action.Equals("mouseUp"))
+        foreach (Line line in currentLineList)
         {
-            currentLine = null;
-        }
-        else if (action.Equals("notNullActiveLine"))
-        {
-            currentLine.UpdateLine(mousePosVec);
+            if (line.GetLineRef() == lineRef)
+            {
+                Line activeLine = line;
+
+                if (action.Equals("mouseUp"))
+                {
+                    activeLine = null;
+                    currentLineList.Remove(line);
+                }
+                else if (action.Equals("notNullActiveLine"))
+                {
+                    activeLine.UpdateLine(mousePosVec);
+                }
+            }
         }
     }
 

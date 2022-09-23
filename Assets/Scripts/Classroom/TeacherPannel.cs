@@ -9,7 +9,7 @@ public class TeacherPannel : MonoBehaviour
 {
     private GameObject participant;
     private PhotonView PV;
-    private string str_CurrentTask;
+    private string str_CurrentTask = "";
     Scene classroom;
 
     //REMOVE ALL WHITEBOARD LISTS
@@ -95,6 +95,12 @@ public class TeacherPannel : MonoBehaviour
         {
             joinTableCanvas.gameObject.SetActive(state);
         }
+        else if (panelName.Equals("all"))
+        {
+            teacherPanelCanvas.gameObject.SetActive(state);
+            notificationsManager.SetActive(state);
+            joinTableCanvas.gameObject.SetActive(state);
+        }
     }
 
     public void StartActivity(string btnType)
@@ -128,19 +134,33 @@ public class TeacherPannel : MonoBehaviour
         }
         else if (btnType.Equals("whiteboardMarking"))
         {
-            btn_StartWBA.gameObject.SetActive(false);
-            btn_StartWM.gameObject.SetActive(false);
-            btn_StartPM.gameObject.SetActive(false);
-            btn_EndWM.gameObject.SetActive(true);
-            str_CurrentTask = "MarkingWhiteBoard";
+            if (str_CurrentTask.Equals("EndWhiteboard"))    //Check if whiteboard task has ended
+            {
+                btn_StartWBA.gameObject.SetActive(false);
+                btn_StartWM.gameObject.SetActive(false);
+                btn_StartPM.gameObject.SetActive(false);
+                btn_EndWM.gameObject.SetActive(true);
+                str_CurrentTask = "MarkingWhiteBoard";
+            }
+            else
+            {
+                Debug.LogError("Unable to start whiteboard marking task without first starting whiteboard task");
+            }
         }
         else if (btnType.Equals("peerAssessment"))
         {
-            btn_StartWBA.gameObject.SetActive(false);
-            btn_StartWM.gameObject.SetActive(false);
-            btn_StartPM.gameObject.SetActive(false);
-            btn_EndPM.gameObject.SetActive(true);
-            str_CurrentTask = "PeerMarking";
+            if (str_CurrentTask.Equals("EndWhiteboard") || str_CurrentTask.Equals("EndWhiteboardMarking"))
+            {
+                btn_StartWBA.gameObject.SetActive(false);
+                btn_StartWM.gameObject.SetActive(false);
+                btn_StartPM.gameObject.SetActive(false);
+                btn_EndPM.gameObject.SetActive(true);
+                str_CurrentTask = "PeerMarking";
+            }
+            else
+            {
+                Debug.LogError("Unable to start peer marking task without first starting whiteboard task");
+            }
         }
 
         activityManager.GetComponent<ActivityManager>().StartActivity(btnType, intxt_Activity.text, int_NumberOfGroups, float.Parse(intxt_TimerValue.text));
@@ -252,7 +272,14 @@ public class TeacherPannel : MonoBehaviour
         {
             if (PV.IsMine)
             {
-                PV.RPC("EndActivity", RpcTarget.Others, "endWhiteboardMarking");
+                PV.RPC("EndActivity", RpcTarget.Others, "whiteboardMarking");
+            }
+        }
+        else if (str_CurrentTask.Equals("EndPeerMarking"))
+        {
+            if (PV.IsMine)
+            {
+                PV.RPC("EndActivity", RpcTarget.Others, "peerAssessment");
             }
         }
     }
@@ -260,7 +287,7 @@ public class TeacherPannel : MonoBehaviour
     [PunRPC]
     public void PositionStudents(string position)
     {
-        //GameObject student = GameObject.Find("CurrentParticipant");
+        int index = -1;
 
         foreach (GameObject student in studentsList)
         {
@@ -270,52 +297,58 @@ public class TeacherPannel : MonoBehaviour
             {
                 if (student.GetComponent<GroupData>().GetGroupID() == 1)
                 {
-                    tableGroup[0].GetComponent<TableScript>().Sitting(student);
+                    index = tableGroup[0].GetComponent<TableScript>().Position(student, -1);
                 }
                 else if (student.GetComponent<GroupData>().GetGroupID() == 2)
                 {
-                    tableGroup[1].GetComponent<TableScript>().Sitting(student);
+                    index = tableGroup[1].GetComponent<TableScript>().Position(student, -1);
                 }
                 else if (student.GetComponent<GroupData>().GetGroupID() == 3)
                 {
-                    tableGroup[2].GetComponent<TableScript>().Sitting(student);
+                    index = tableGroup[2].GetComponent<TableScript>().Position(student, -1);
                 }
                 else if (student.GetComponent<GroupData>().GetGroupID() == 4)
                 {
-                    tableGroup[3].GetComponent<TableScript>().Sitting(student);
+                    index = tableGroup[3].GetComponent<TableScript>().Position(student, -1);
                 }
             }
             else if (position.Equals("stand"))
             {
                 tableGroup[0].GetComponent<TableScript>().StandUp(student);
             }
+
+            PV.RPC("PositionParticipant", RpcTarget.Others, position, student.GetComponent<Participant>().CheckData("name"), index);
         }
     }
 
-    public void PositionTeacher(string position, GameObject teacher)
+    [PunRPC]
+    public void PositionParticipant(string position, string participantName, int chair)
     {
-        if (position.Equals("sit"))
+        if (participantName.Equals(participant.GetComponent<Participant>().CheckData("name")))
         {
-            if (teacher.GetComponent<GroupData>().GetGroupID() == 1)
+            if (position.Equals("sit"))
             {
-                tableGroup[0].GetComponent<TableScript>().Sitting(teacher);
+                if (participant.GetComponent<GroupData>().GetGroupID() == 1)
+                {
+                    tableGroup[0].GetComponent<TableScript>().Position(participant, chair);
+                }
+                else if (participant.GetComponent<GroupData>().GetGroupID() == 2)
+                {
+                    tableGroup[1].GetComponent<TableScript>().Position(participant, chair);
+                }
+                else if (participant.GetComponent<GroupData>().GetGroupID() == 3)
+                {
+                    tableGroup[2].GetComponent<TableScript>().Position(participant, chair);
+                }
+                else if (participant.GetComponent<GroupData>().GetGroupID() == 4)
+                {
+                    tableGroup[3].GetComponent<TableScript>().Position(participant, chair);
+                }
             }
-            else if (teacher.GetComponent<GroupData>().GetGroupID() == 2)
+            else if (position.Equals("stand"))
             {
-                tableGroup[1].GetComponent<TableScript>().Sitting(teacher);
+                tableGroup[0].GetComponent<TableScript>().StandUp(participant);
             }
-            else if (teacher.GetComponent<GroupData>().GetGroupID() == 3)
-            {
-                tableGroup[2].GetComponent<TableScript>().Sitting(teacher);
-            }
-            else if (teacher.GetComponent<GroupData>().GetGroupID() == 4)
-            {
-                tableGroup[3].GetComponent<TableScript>().Sitting(teacher);
-            }
-        }
-        else if (position.Equals("stand"))
-        {
-            tableGroup[0].GetComponent<TableScript>().StandUp(teacher);
         }
     }
 

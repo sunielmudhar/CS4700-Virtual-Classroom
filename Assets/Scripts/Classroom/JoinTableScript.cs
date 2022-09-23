@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class JoinTableScript : MonoBehaviour
 {
-    [SerializeField] GameObject participant, teacherPanel;
+    [SerializeField] GameObject participant, teacherPanel, whiteboardManager;
 
     void Start()
     {
@@ -12,10 +12,10 @@ public class JoinTableScript : MonoBehaviour
 
     public void ChangeParticipantType(string action)
     {
-        if(action.Equals("join"))
+        /*if(action.Equals("join"))
             participant.GetComponent<Participant>().ChangeType("student");
         else if (action.Equals("leave"))
-            participant.GetComponent<Participant>().ChangeType("teacher");
+            participant.GetComponent<Participant>().ChangeType("teacher");*/
     }
 
     public void OnClickJoinTable(string tableNumber)
@@ -39,12 +39,23 @@ public class JoinTableScript : MonoBehaviour
             participant.GetComponent<GroupData>().SetGroupID(4);
         }
 
-        teacherPanel.GetComponent<TeacherPannel>().PositionTeacher("sit", participant);
+        teacherPanel.GetComponent<TeacherPannel>().ManagePanels("all_close");   //Close all panels, this also fixes the issue with resetting the bl_CanMove status back to 0
+        teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("sit", participant.GetComponent<Participant>().CheckData("name"), -1);
+
+        if (whiteboardManager = null)
+        {
+            Debug.LogError("Whiteboard not found, please start a whiteboard task to activate");
+        }
+        else
+        {
+            whiteboardManager.GetComponent<WhiteboardManager>().SetCamera(true);
+        }
     }
 
     public void OnClickLeaveTable()
     {
         ChangeParticipantType("leave");
-        teacherPanel.GetComponent<TeacherPannel>().PositionTeacher("stand", participant);
+        teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("stand", participant.GetComponent<Participant>().CheckData("name"), -1);
+        whiteboardManager.GetComponent<WhiteboardManager>().SetCamera(false);
     }
 }

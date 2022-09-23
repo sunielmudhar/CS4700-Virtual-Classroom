@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class MarkingManager : MonoBehaviour
 {
-    [SerializeField] public Transform markingCanvas, submitCanvas;
+    [SerializeField] public Canvas markingCanvas;
+    [SerializeField] public Transform markingPrefabGroup;
     [SerializeField] public GameObject groupMarkPrefab, peerMarkPrefab;
     [SerializeField] public GameObject[] drp_MarksInput, intxt_Feedback;
 
@@ -15,7 +16,7 @@ public class MarkingManager : MonoBehaviour
     PhotonView PV;
     GameObject participant;
     string str_activityName;
-    int int_numberOfGroups;
+    [SerializeField] int int_numberOfGroups;
     bool bl_CanMark = false, bl_MarkingCanvasOpen = false;
 
     void Start()
@@ -29,13 +30,11 @@ public class MarkingManager : MonoBehaviour
         if (bl_CanMark && Input.GetKeyDown(KeyCode.LeftShift) && !bl_MarkingCanvasOpen)
         {
             markingCanvas.gameObject.SetActive(true);
-            submitCanvas.gameObject.SetActive(true);
             bl_MarkingCanvasOpen = true;
         }
         else if ((bl_CanMark && Input.GetKeyDown(KeyCode.LeftShift) && bl_MarkingCanvasOpen) || !bl_CanMark)
         {
             markingCanvas.gameObject.SetActive(false);
-            submitCanvas.gameObject.SetActive(false);
             bl_MarkingCanvasOpen = false;
         }
     }
@@ -75,16 +74,14 @@ public class MarkingManager : MonoBehaviour
                 int_numberOfGroups = 1;
             }
 
-            for (int i = 0; i < int_numberOfGroups; i++)
+            for (int i = 0; i <= int_numberOfGroups - 1; i++)
             {
-                GameObject groupMarkingUI = Instantiate(groupMarkPrefab, markingCanvas);
-                groupMarkingUI.GetComponentInChildren<TextMeshProUGUI>().text = "Group " + i + 1;
-                markingGameObjectList.Add(groupMarkingUI);
-                drp_MarksInput[i] = groupMarkingUI;
-
                 if (i + 1 != participant.GetComponent<GroupData>().GetGroupID())
                 {
-                    drp_MarksInput[i].GetComponentInChildren<TMP_Dropdown>().gameObject.SetActive(false);
+                    GameObject groupMarkingUI = Instantiate(groupMarkPrefab, markingPrefabGroup);
+                    groupMarkingUI.GetComponentInChildren<TextMeshProUGUI>().text = "Group " + (i + 1);
+                    markingGameObjectList.Add(groupMarkingUI);
+                    drp_MarksInput[i] = groupMarkingUI;
                 }
             }
         }
@@ -96,7 +93,7 @@ public class MarkingManager : MonoBehaviour
             {
                 if ((student.GetComponent<GroupData>().GetGroupID() == participant.GetComponent<GroupData>().GetGroupID()) && (student.GetComponent<Participant>().CheckData("name") != participant.GetComponent<Participant>().CheckData("name")))
                 {
-                    GameObject peerMarkingUI = Instantiate(peerMarkPrefab, markingCanvas);
+                    GameObject peerMarkingUI = Instantiate(peerMarkPrefab, markingPrefabGroup);
                     peerMarkingUI.GetComponentInChildren<TextMeshProUGUI>().text = student.GetComponent<Participant>().CheckData("name");
                     markingGameObjectList.Add(peerMarkingUI);
                     studentGroupMembers.Add(student);
@@ -121,7 +118,7 @@ public class MarkingManager : MonoBehaviour
             m[1] = participant.GetComponent<Participant>().CheckData("name");
             m[2] = participant.GetComponent<GroupData>().GetGroupID().ToString();
 
-            for (int i = 0; i < drp_MarksInput.Length; i++)
+            for (int i = 0; i < int_numberOfGroups; i++)
             {
                 if (drp_MarksInput[i] != null)
                 {
@@ -129,7 +126,7 @@ public class MarkingManager : MonoBehaviour
                 }
                 else
                 {
-                    break;
+                    m[i + 3] = "Marks not applicable";
                 }
             }
 

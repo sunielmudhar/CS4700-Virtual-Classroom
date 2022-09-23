@@ -16,10 +16,7 @@ public class InteractionPointManager : MonoBehaviour, IPunObservable
 
     public void Occupy(bool state)
     {
-        if (state)
-            bl_IsOccupied = true;
-        else
-            bl_IsOccupied = false;
+        bl_IsOccupied = state;
     }
 
     public bool IsOccupied()
@@ -33,11 +30,11 @@ public class InteractionPointManager : MonoBehaviour, IPunObservable
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(bl_IsOccupied);
+           // stream.SendNext(bl_IsOccupied);
         }
         else if (stream.IsReading)
         {
-            this.Occupy((bool)stream.ReceiveNext());
+            //this.Occupy((bool)stream.ReceiveNext());
         }
     }
 }
