@@ -4,7 +4,6 @@ using Photon.Pun;
 public class WhiteboardManager : MonoBehaviour
 {
     private PhotonView PV;
-    private bool bl_Turn = false;
     [SerializeField] GameObject mainCamera, participant;
     [SerializeField] public GameObject[] drawingCameras;
 
@@ -56,10 +55,5 @@ public class WhiteboardManager : MonoBehaviour
             drawingCameras[int_ParticipantGroupID].SetActive(false);
             drawingCameras[int_ParticipantGroupID].tag = "Drawing Camera";
         }
-    }
-
-    public void EndTurn()
-    {
-        bl_Turn = false;
     }
 }

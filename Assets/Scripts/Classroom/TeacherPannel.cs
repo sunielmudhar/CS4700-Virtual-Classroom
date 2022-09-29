@@ -75,12 +75,12 @@ public class TeacherPannel : MonoBehaviour
         if (action.Equals("open"))
         {
             state = true;
-            participant.GetComponent<ParticipantController>().InActivity(1);
+            CheckMovementState(action);
         }
         else if (action.Equals("close"))
         {
             state = false;
-            participant.GetComponent<ParticipantController>().InActivity(0);
+            CheckMovementState(action);
         }
 
         if (panelName.Equals("teacherPanel"))
@@ -100,6 +100,22 @@ public class TeacherPannel : MonoBehaviour
             teacherPanelCanvas.gameObject.SetActive(state);
             notificationsManager.SetActive(state);
             joinTableCanvas.gameObject.SetActive(state);
+            bl_ActivityManagerOpen = state;
+        }
+    }
+
+    public void CheckMovementState(string action)
+    {
+        if (!participant.GetComponent<ParticipantController>().GetActivityState())
+        {
+            if (action.Equals("open"))
+            {
+                participant.GetComponent<ParticipantController>().SetMovementState(0);
+            }
+            else if (action.Equals("close"))
+            {
+                participant.GetComponent<ParticipantController>().SetMovementState(1);
+            }
         }
     }
 
@@ -118,9 +134,9 @@ public class TeacherPannel : MonoBehaviour
             {
                 Debug.LogError("Please enter a number between 1 and 4");
             }
-            else if (int_NumberOfGroups == 1 && studentsList.Count > 8)
+            else if (int_NumberOfGroups == 1 && studentsList.Count > 7)
             {
-                Debug.LogError("Only 8 students are allowed in a group");
+                Debug.LogError("Only 6 students are allowed in a group");
             }
             else
             {
@@ -314,17 +330,17 @@ public class TeacherPannel : MonoBehaviour
             }
             else if (position.Equals("stand"))
             {
-                tableGroup[0].GetComponent<TableScript>().StandUp(student);
+                tableGroup[0].GetComponent<TableScript>().StandUp(student); //Just need to trigger 1 table group not all of them
             }
 
-            PV.RPC("PositionParticipant", RpcTarget.Others, position, student.GetComponent<Participant>().CheckData("name"), index);
+            PV.RPC("PositionParticipant", RpcTarget.Others, position, student.GetComponent<Participant>().CheckData("refCode"), index);
         }
     }
 
     [PunRPC]
-    public void PositionParticipant(string position, string participantName, int chair)
+    public void PositionParticipant(string position, string participantRefCode, int chair)
     {
-        if (participantName.Equals(participant.GetComponent<Participant>().CheckData("name")))
+        if (participantRefCode.Equals(participant.GetComponent<Participant>().CheckData("refCode")))
         {
             if (position.Equals("sit"))
             {
@@ -352,10 +368,28 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
-    public static void ModifyList(string listType, string[] submittedStudentMark)
+    public static void ModifyList(string listType, string[] submittedStudentMark, string participantRef)
     {
-        markList.Add(submittedStudentMark);
-        Debug.Log("Marks Submitted");
+        if (listType.Equals("AddMarksPeer") || listType.Equals("AddMarksGroup"))
+        {
+            markList.Add(submittedStudentMark);
+            Debug.Log("Marks Submitted");
+        }
+        else if (listType.Equals("RemoveStudent"))
+        {
+            GameObject studentToRemove = null;
+
+            foreach (GameObject student in studentsList)
+            {
+                if (student.GetComponent<Participant>().CheckData("refCode").Equals(participantRef))
+                {
+                    studentToRemove = student;
+                    break;
+                }
+            }
+
+            studentsList.Remove(studentToRemove);
+        }
     }
 
     public static List<GameObject> GetList(string listType)

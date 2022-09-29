@@ -40,9 +40,9 @@ public class JoinTableScript : MonoBehaviour
         }
 
         teacherPanel.GetComponent<TeacherPannel>().ManagePanels("all_close");   //Close all panels, this also fixes the issue with resetting the bl_CanMove status back to 0
-        teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("sit", participant.GetComponent<Participant>().CheckData("name"), -1);
+        teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("sit", participant.GetComponent<Participant>().CheckData("refCode"), -1);
 
-        if (whiteboardManager = null)
+        if (whiteboardManager == null)
         {
             Debug.LogError("Whiteboard not found, please start a whiteboard task to activate");
         }
@@ -55,7 +55,7 @@ public class JoinTableScript : MonoBehaviour
     public void OnClickLeaveTable()
     {
         ChangeParticipantType("leave");
-        teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("stand", participant.GetComponent<Participant>().CheckData("name"), -1);
+        teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("stand", participant.GetComponent<Participant>().CheckData("refCode"), -1);
         whiteboardManager.GetComponent<WhiteboardManager>().SetCamera(false);
     }
 }

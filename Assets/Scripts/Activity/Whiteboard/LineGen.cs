@@ -57,6 +57,17 @@ public class LineGen : MonoBehaviour
             {
                 PV.RPC("helperFunction", RpcTarget.All, "mouseUp", null, currentLine.GetLineRef());
             }
+
+            if (Input.GetMouseButton(1))
+            {
+                var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                if (Physics.Raycast(Ray, out hit) && hit.collider.gameObject.tag.Equals("Line"))
+                {
+                    PhotonNetwork.Destroy(hit.collider.gameObject);
+                }
+            }
         }
     }
 
@@ -72,6 +83,8 @@ public class LineGen : MonoBehaviour
     [PunRPC]
     public void helperFunction(string action, Vector3 mousePosVec, int lineRef)
     {
+        Line lineToRemove = null;
+
         foreach (Line line in currentLineList)
         {
             if (line.GetLineRef() == lineRef)
@@ -81,14 +94,18 @@ public class LineGen : MonoBehaviour
                 if (action.Equals("mouseUp"))
                 {
                     activeLine = null;
-                    currentLineList.Remove(line);
+                    lineToRemove = line;
+                    break;
                 }
                 else if (action.Equals("notNullActiveLine"))
                 {
                     activeLine.UpdateLine(mousePosVec);
+                    break;
                 }
             }
         }
+
+        currentLineList.Remove(lineToRemove);
     }
 
     public static void CanDraw(bool state)

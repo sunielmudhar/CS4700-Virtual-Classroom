@@ -11,7 +11,7 @@ public class ParticipantController : MonoBehaviour
     private PhotonView PV;
 
     float fl_VerticalLookRotation;
-    [SerializeField] bool bl_CanMove = true;
+    [SerializeField] private bool bl_InActivity = false, bl_CanMove = true;
     Vector3 smoothMovementVelocity;
     Vector3 movementAmount;
 
@@ -36,12 +36,27 @@ public class ParticipantController : MonoBehaviour
     {
         if (index == 1)
         {
-            bl_CanMove = false;
+            bl_InActivity = true;
+            SetMovementState(0);
         }
         else
         {
-            bl_CanMove = true;
+            bl_InActivity = false;
+            SetMovementState(1);
         }
+    }
+
+    public void SetMovementState(int index)
+    {
+        if (index == 1)
+            bl_CanMove = true;
+        else
+            bl_CanMove = false;
+    }
+
+    public bool GetActivityState()
+    {
+        return bl_InActivity;
     }
 
     void FixedUpdate()

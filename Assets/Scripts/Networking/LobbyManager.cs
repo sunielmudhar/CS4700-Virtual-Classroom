@@ -26,7 +26,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         Debug.Log(PhotonNetwork.NickName);
     }
 
-    public void OnClickDisconnect()
+    public static void OnClickDisconnect()
     {
         PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("Menu");

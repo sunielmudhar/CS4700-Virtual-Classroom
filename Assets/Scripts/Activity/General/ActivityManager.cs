@@ -4,34 +4,14 @@ using TMPro;
 
 public class ActivityManager : MonoBehaviour
 {
-    [SerializeField] private GameObject whiteboard, markingManager, activityManager, participant;
+    [SerializeField] private GameObject whiteboard, markingManager, activityManager;
     [SerializeField] private Canvas activityManagerCanvas;
     [SerializeField] private TextMeshProUGUI txt_ActivityText;
     PhotonView PV;
 
-    bool bl_IsActivityManagerOpen = false;
-
     void Start()
     {
         PV = GetComponent<PhotonView>();
-        participant = GameObject.Find("CurrentParticipant");
-    }
-
-    void Update()
-    {
-        if (participant.tag.Equals("Student"))
-        {
-            if (Input.GetKeyDown(KeyCode.Tab) && !bl_IsActivityManagerOpen)
-            {
-                DisplayActivityManager(true);
-                bl_IsActivityManagerOpen = true;
-            }
-            else if (Input.GetKeyDown(KeyCode.Tab) && bl_IsActivityManagerOpen)
-            {
-                DisplayActivityManager(false);
-                bl_IsActivityManagerOpen = false;
-            }
-        }
     }
 
     public void StartActivity(string activityName, string activityText, int numberOfGroups, float timerValue)
@@ -102,10 +82,5 @@ public class ActivityManager : MonoBehaviour
     {
         txt_ActivityText.text = activityText;
         activityManager.GetComponent<Timer>().InitialiseTimer(timerValue, true);
-    }
-
-    public void DisplayActivityManager(bool state)
-    {
-        activityManagerCanvas.gameObject.SetActive(state);
     }
 }

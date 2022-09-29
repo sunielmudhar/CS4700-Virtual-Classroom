@@ -67,6 +67,7 @@ MonoBehaviour:
   - EndTimer
   - SendRequest
   - PositionParticipant
+  - UpdateStudentList
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

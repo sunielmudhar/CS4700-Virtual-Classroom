@@ -5,6 +5,13 @@ public class TableScript : MonoBehaviour
     public Transform[] chairPoint;
     public Vector3 sittingPlace;
 
+    /// <summary>
+    /// Seat the participant (Can be student or teacher)
+    /// If a specific chair point has been sent, then position the participant at that chair point
+    /// If no spcific chair point has been supplied, then find the next available chair for the participant to sit in
+    /// else statement is mainly used to update other student positions (RPC from line 320 of Teacher Panel script)
+    /// </summary>
+    
     public int Position(GameObject participant, int sentChairPoint)
     {
         int index = -1;
@@ -46,11 +53,17 @@ public class TableScript : MonoBehaviour
 
     public void StandUp(GameObject participant)
     {
-        participant.GetComponent<ParticipantController>().InActivity(0);
-
         foreach (Transform chair in chairPoint)
         {
-            chair.GetComponent<InteractionPointManager>().Occupy(false);
+            FreeChair(chair);
         }
+        
+        participant.GetComponent<ParticipantController>().InActivity(0);
+    }
+
+    //Need to call this method from the foreach loop as cannot modify variables within an iteration
+    public void FreeChair(Transform chair)
+    {
+        chair.GetComponent<InteractionPointManager>().Occupy(false);
     }
 }

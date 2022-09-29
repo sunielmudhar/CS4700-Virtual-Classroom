@@ -17,7 +17,6 @@ public class MarkingManager : MonoBehaviour
     GameObject participant;
     string str_activityName;
     [SerializeField] int int_numberOfGroups;
-    bool bl_CanMark = false, bl_MarkingCanvasOpen = false;
 
     void Start()
     {
@@ -25,24 +24,9 @@ public class MarkingManager : MonoBehaviour
         participant = GameObject.Find("CurrentParticipant");
     }
 
-    void Update()
-    {
-        if (bl_CanMark && Input.GetKeyDown(KeyCode.LeftShift) && !bl_MarkingCanvasOpen)
-        {
-            markingCanvas.gameObject.SetActive(true);
-            bl_MarkingCanvasOpen = true;
-        }
-        else if ((bl_CanMark && Input.GetKeyDown(KeyCode.LeftShift) && bl_MarkingCanvasOpen) || !bl_CanMark)
-        {
-            markingCanvas.gameObject.SetActive(false);
-            bl_MarkingCanvasOpen = false;
-        }
-    }
-
     public void StartMarkingActivity(string activityName, int numberOfGroups)
     {
         LineGen.CanDraw(false);     //Ensure that students cannot draw
-        bl_CanMark = true;
         int_numberOfGroups = numberOfGroups;
         str_activityName = activityName;
         InstantiateUIAssets();
@@ -52,7 +36,6 @@ public class MarkingManager : MonoBehaviour
     public void EndMarkingActivity(string activityName)
     {
         LineGen.CanDraw(false);     //Ensure that students cannot draw
-        bl_CanMark = false;
         str_activityName = activityName;
 
         foreach (GameObject uiObject in markingGameObjectList)
@@ -170,7 +153,7 @@ public class MarkingManager : MonoBehaviour
         if (participant.tag.Equals("Teacher"))
         {
             Debug.Log(listType + " Marks Recieved");
-            TeacherPannel.ModifyList(listType, outGoingMarkList);
+            TeacherPannel.ModifyList(listType, outGoingMarkList, null);
         }
     }
 }

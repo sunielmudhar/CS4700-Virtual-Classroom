@@ -16,6 +16,7 @@ public class Participant : MonoBehaviour
     private string str_ParticipantName;
     private string str_ParticipantType;
     private string str_ParticipantMeshCode;
+    private string str_ParticipantRefCode = "";
 
     void Start()
     {
@@ -25,9 +26,9 @@ public class Participant : MonoBehaviour
         if (PV.IsMine)
         {
             GetParameters();
-            InitialiseParticipantAssets(str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
+            InitialiseParticipantAssets(str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType, str_ParticipantRefCode);
 
-            PV.RPC("InitialiseParticipantAssets", RpcTarget.Others, str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType);
+            PV.RPC("InitialiseParticipantAssets", RpcTarget.Others, str_ParticipantMeshCode, str_ParticipantName, str_ParticipantType, str_ParticipantRefCode);
         }
         else
         {
@@ -43,10 +44,12 @@ public class Participant : MonoBehaviour
         str_ParticipantType = str_PhotonName[0];
         str_ParticipantName = str_PhotonName[1];
         str_ParticipantMeshCode = str_PhotonName[2];
+        GenRefCode();
     }
 
+    //This code initialises the participants assets (name tag, model and game object tag) from their name
     [PunRPC]
-    public void InitialiseParticipantAssets(string str_MeshCode, string str_Name, string str_Type)
+    public void InitialiseParticipantAssets(string str_MeshCode, string str_Name, string str_Type, string str_RefCode)
     {
         txt_ParticipantName.text = str_Name;
         this.str_ParticipantName = str_Name;
@@ -70,6 +73,17 @@ public class Participant : MonoBehaviour
         {
             this.gameObject.tag = "Student";
         }
+
+       if (this.str_ParticipantRefCode.Equals(""))
+            str_ParticipantRefCode = str_RefCode;
+    }
+
+    public void GenRefCode()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            str_ParticipantRefCode = str_ParticipantRefCode + Random.Range(1, 9);
+        }
     }
 
     public string CheckData(string parameter)
@@ -85,6 +99,10 @@ public class Participant : MonoBehaviour
         else if (parameter.Equals("meshCode"))
         {
             return str_ParticipantMeshCode;
+        }
+        else if (parameter.Equals("refCode"))
+        {
+            return str_ParticipantRefCode;
         }
         else
         {
