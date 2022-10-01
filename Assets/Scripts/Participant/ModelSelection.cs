@@ -3,6 +3,10 @@ using Photon.Pun;
 
 public class ModelSelection : MonoBehaviour
 {
+    /// <summary>
+    /// Functionality for allowing participants to select their avatar
+    /// </summary>
+
     [SerializeField] public GameObject[] img_ModelSelection;
 
     public int int_ModelNumber = 0;
@@ -21,6 +25,7 @@ public class ModelSelection : MonoBehaviour
         ModelSelect(int_ModelNumber);
     }
 
+    //Select the avatar depending on the current model selected
     public void ModelSelect(int index)
     {
 

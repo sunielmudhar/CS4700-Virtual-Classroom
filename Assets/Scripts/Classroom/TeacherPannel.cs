@@ -7,12 +7,15 @@ using System;
 
 public class TeacherPannel : MonoBehaviour
 {
+    /// <summary>
+    /// Teacher panel script, used to initiate and manage much of the classroom functionality, including;
+    /// Activity initialisation, 
+    /// </summary>
+
     private GameObject participant;
     private PhotonView PV;
     private string str_CurrentTask = "";
     Scene classroom;
-
-    //REMOVE ALL WHITEBOARD LISTS
 
     private static List<GameObject> roomGameObjectsList = new List<GameObject>();
     private static List<GameObject> studentsList = new List<GameObject>();
@@ -49,23 +52,7 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
-    [PunRPC]
-    public void PopulateLists()
-    {
-        classroom.GetRootGameObjects(roomGameObjectsList);
-
-        foreach (GameObject gameObject in roomGameObjectsList)
-        {
-            if (gameObject.tag.Equals("Student"))
-            {
-                if (!studentsList.Contains(gameObject))
-                {
-                    studentsList.Add(gameObject);
-                }
-            }
-        }
-    }
-
+    //Assigned to buttons on the teacher panel, takes a string input to manipulate panels/canvases
     public void ManagePanels(string instruction)
     {
         string panelName = instruction.Split('_')[0];
@@ -104,6 +91,7 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
+    //Check if the participant is moving
     public void CheckMovementState(string action)
     {
         if (!participant.GetComponent<ParticipantController>().GetActivityState())
@@ -183,6 +171,7 @@ public class TeacherPannel : MonoBehaviour
         UpdateAllClients();
     }
 
+    //If triggered, end the relevant activity
     public void TimerEnded()
     {
         string actType;
@@ -241,11 +230,31 @@ public class TeacherPannel : MonoBehaviour
         UpdateAllClients();
     }
 
+    //Send mark list to CSVMaker script file to be exported to a CSV
     public void ExportToCSV()
     {
         this.GetComponent<CSVMaker>().CreateMarksCSV(markList, str_CurrentTask);
     }
 
+    //Generate list of all students, can be used for other game objects also
+    [PunRPC]
+    public void PopulateLists()
+    {
+        classroom.GetRootGameObjects(roomGameObjectsList);  //Create list of all game objects active in scene
+
+        foreach (GameObject gameObject in roomGameObjectsList)
+        {
+            if (gameObject.tag.Equals("Student"))
+            {
+                if (!studentsList.Contains(gameObject))
+                {
+                    studentsList.Add(gameObject);
+                }
+            }
+        }
+    }
+
+    //Assign each student a group
     public void CreateGroups()
     {
         foreach (GameObject student in studentsList)
@@ -254,6 +263,8 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
+    //Generates the group number assigned to each student, group number increments each time the function is ran
+    //until it reaches the total number of groups set by the teacher, for which it then returns to 1
     public int GetGroupNumber()
     {
         int_CurrentGroupID++;
@@ -266,6 +277,8 @@ public class TeacherPannel : MonoBehaviour
         return int_CurrentGroupID;
     }
 
+    //This function updates all other clients in the classroom to reflect changes made by the teacher, such as;
+    //The initialisation of a task, populating a list, ending an activity
     public void UpdateAllClients()
     {
         if (str_CurrentTask.Equals("EndWhiteboard"))
@@ -281,7 +294,6 @@ public class TeacherPannel : MonoBehaviour
             if (PV.IsMine)
             {
                 PV.RPC("PopulateLists", RpcTarget.Others);
-                //PV.RPC("PositionStudents", RpcTarget.Others, "sit");
             }
         }
         else if (str_CurrentTask.Equals("EndWhiteboardMarking"))
@@ -300,6 +312,9 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
+    //Used specifically to position students around a table depending on their group number
+    //Example, students from group 1 will be positioned around table 1 etc
+    //Function runs host side and is then ran client side using PositionParticipants to reflect changes on the client's side
     [PunRPC]
     public void PositionStudents(string position)
     {
@@ -330,10 +345,11 @@ public class TeacherPannel : MonoBehaviour
                 }
             }
 
-            PV.RPC("PositionParticipant", RpcTarget.Others, position, student.GetComponent<Participant>().CheckData("refCode"), index);
+            PV.RPC("PositionParticipant", RpcTarget.Others, position, student.GetComponent<Participant>().CheckData("refCode"), index); //Send student's new position update to all clients to reflect changes
         }
     }
 
+    //Used to position all participants, such as teachers. Is also used client side to update changes made host side
     [PunRPC]
     public void PositionParticipant(string position, string participantRefCode, int chair)
     {
@@ -362,6 +378,7 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
+    //Method is called when looking to modify a particular list, such as the marks list or student list
     public static void ModifyList(string listType, string[] submittedStudentMark, string participantRef)
     {
         if (listType.Equals("AddMarksPeer") || listType.Equals("AddMarksGroup"))
@@ -386,6 +403,7 @@ public class TeacherPannel : MonoBehaviour
         }
     }
 
+    //Method called when looking to return a list for use outside of this script file
     public static List<GameObject> GetList(string listType)
     {
         if (listType.Equals("studentList"))

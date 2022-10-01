@@ -5,20 +5,20 @@ using UnityEngine;
 
 public class CSVMaker : MonoBehaviour
 {
-    public string str_CSVName;
-    public bool bl_CSVCreated = false;
     [SerializeField] TMP_InputField intxt_CSVName;
+    public string str_CSVName;
 
     public void CreateMarksCSV(List<string[]> studentMarks, string currentTask)
     {
-
+        //Check if teacher has inputted a name for the CSV file
         if (intxt_CSVName.text.Equals(null) || intxt_CSVName.Equals(""))
             str_CSVName = "Marks.csv";
         else
             str_CSVName = intxt_CSVName.text + ".csv";
 
-        TextWriter markCSVMaker = new StreamWriter(str_CSVName, true);
+        TextWriter markCSVMaker = new StreamWriter(str_CSVName, true);  //Create CSV
 
+        //Depending on the current task, set up the CSV in a particular way
         if (currentTask.Equals("EndWhiteboardMarking"))
         {
             markCSVMaker.WriteLine("Activity Name, Participant Name, Participant Group Number, Group Marks");
@@ -29,6 +29,7 @@ public class CSVMaker : MonoBehaviour
             markCSVMaker.WriteLine("Activity Name, Participant Name, Participant Group Number, Peer Name, Peer Feedback");
         }
 
+        //Write the marks from the string array into the CSV
         foreach (string[] marks in studentMarks)
         {
             markCSVMaker.WriteLine();

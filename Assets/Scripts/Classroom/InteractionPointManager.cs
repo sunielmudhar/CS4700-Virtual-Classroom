@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class InteractionPointManager : MonoBehaviour
 {
-
-    //Sets the seat as occupied and then syncs across other clients
+    //Interaction point script assigned to chairs
+    //Assigns occupied status if a participant is in a chair
 
     [SerializeField] private bool bl_IsOccupied = false;
 

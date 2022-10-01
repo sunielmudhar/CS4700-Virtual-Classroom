@@ -5,10 +5,11 @@ using System.Collections;
 
 public class MenuScript : MonoBehaviour
 {
-    PhotonView PV;
-    GameObject participant;
     [SerializeField] Canvas menuCanvas;
     [SerializeField] bool bl_IsMenuOpen = false;
+
+    PhotonView PV;
+    GameObject participant;
 
     void Start()
     {
@@ -33,7 +34,7 @@ public class MenuScript : MonoBehaviour
     public void OnClickDisconnectButtonMenu()
     {
         if (participant.tag.Equals("Student"))
-            PV.RPC("UpdateStudentList", RpcTarget.All, participant.GetComponent<Participant>().CheckData("refCode"));
+            PV.RPC("UpdateStudentList", RpcTarget.All, participant.GetComponent<Participant>().CheckData("refCode")); //Ask all participants to remove disconnecting player from list
 
         DisconnectParticipant();
     }

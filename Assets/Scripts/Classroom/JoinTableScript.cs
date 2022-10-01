@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class JoinTableScript : MonoBehaviour
 {
+    /// <summary>
+    /// Following script allows a teacher to join a table, by assigning a group number
+    /// and then seating the teacher to the specific table with that group number
+    /// </summary>
+
     [SerializeField] GameObject participant, teacherPanel, whiteboardManager;
 
     void Start()
@@ -10,18 +15,9 @@ public class JoinTableScript : MonoBehaviour
         teacherPanel = GameObject.Find("Teacher Panel");
     }
 
-    public void ChangeParticipantType(string action)
-    {
-        /*if(action.Equals("join"))
-            participant.GetComponent<Participant>().ChangeType("student");
-        else if (action.Equals("leave"))
-            participant.GetComponent<Participant>().ChangeType("teacher");*/
-    }
-
+    //Function is attached to a table button, and takes a string input which will be used to assign the teachers group number
     public void OnClickJoinTable(string tableNumber)
     {
-        ChangeParticipantType("join");
-
         if (tableNumber.Equals("1"))
         {
             participant.GetComponent<GroupData>().SetGroupID(1);
@@ -42,6 +38,7 @@ public class JoinTableScript : MonoBehaviour
         teacherPanel.GetComponent<TeacherPannel>().ManagePanels("all_close");   //Close all panels, this also fixes the issue with resetting the bl_CanMove status back to 0
         teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("sit", participant.GetComponent<Participant>().CheckData("refCode"), -1);
 
+        //Check if the whiteboard manager has been found
         if (whiteboardManager == null)
         {
             Debug.LogError("Whiteboard not found, please start a whiteboard task to activate");
@@ -54,7 +51,6 @@ public class JoinTableScript : MonoBehaviour
 
     public void OnClickLeaveTable()
     {
-        ChangeParticipantType("leave");
         teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("stand", participant.GetComponent<Participant>().CheckData("refCode"), -1);
         whiteboardManager.GetComponent<WhiteboardManager>().SetCamera(false);
     }

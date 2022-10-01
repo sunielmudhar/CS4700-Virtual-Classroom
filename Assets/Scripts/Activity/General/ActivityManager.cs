@@ -4,6 +4,11 @@ using TMPro;
 
 public class ActivityManager : MonoBehaviour
 {
+    /// <summary>
+    /// This script file is used to start and end each activity
+    /// Takes instructions from the teacher panel and reflects any changes across all clients connected to the classroom
+    /// </summary>
+
     [SerializeField] private GameObject whiteboard, markingManager, activityManager;
     [SerializeField] private Canvas activityManagerCanvas;
     [SerializeField] private TextMeshProUGUI txt_ActivityText;
@@ -38,6 +43,7 @@ public class ActivityManager : MonoBehaviour
         activityManager.GetComponent<Timer>().InitialiseTimer(0f, false);
     }
 
+    //Initialise each activity, by making the relevant canvases visible or initialising the relevant states of the starting functions
     [PunRPC]
     public void ActivityInitialiser(string activityName, bool state, int numberOfGroups)
     {
@@ -77,6 +83,7 @@ public class ActivityManager : MonoBehaviour
         }
     }
 
+    //Set the activity text and time
     [PunRPC]
     public void AssetInitialiser(string activityText, float timerValue)
     {

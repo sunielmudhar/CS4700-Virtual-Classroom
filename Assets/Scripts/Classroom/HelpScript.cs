@@ -3,6 +3,12 @@ using Photon.Pun;
 
 public class HelpScript : MonoBehaviour
 {
+    /// <summary>
+    /// Following script is called when a student is looking to request help
+    /// Does this by sending a PUN RPC to all participants (incase of multiple teachers)
+    /// SendRequest() then recieves the sent data and displays it to the teacher(s)
+    /// </summary>
+
     [SerializeField] private GameObject participant, teacherPanel;
     PhotonView PV;
 

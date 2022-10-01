@@ -10,13 +10,13 @@ public class ReadCSV_ForbiddenNames : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        str_Names = namesCSV.text.Split(new char[] { '\n' });
+        str_Names = namesCSV.text.Split(new char[] { '\n' });   //Load CSV contents into a string array
         Debug.Log("Forbidden names CSV loaded");
     }
 
+    //Check if the entered name meets the length requirement and is not in the forbidden names CSV
     public bool CheckName(string name)
     {
-
         if (name.Length < 1)
         {
             return false;
@@ -31,7 +31,6 @@ public class ReadCSV_ForbiddenNames : MonoBehaviour
         }
 
         return true;
-
     }
 
 }

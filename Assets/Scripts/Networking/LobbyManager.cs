@@ -14,8 +14,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     PhotonView PV;
 
-    /*If teacher then can see the disconnect button for each other participant, else it is invisible*/
-
     void Start()
     {
         PV = GetComponent<PhotonView>();
@@ -23,26 +21,29 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         txt_RoomCode.text = PhotonNetwork.CurrentRoom.Name;
         txt_HostName.text = "Host: " + PhotonNetwork.MasterClient.NickName.Split('_')[1];
 
+        //Check if the current user is a teacher, if yes then display the host canvas
         if (PhotonNetwork.NickName.Split('_')[0].Equals("Teacher"))
         {
             hostCanvas.gameObject.SetActive(true);
         }
 
-        Debug.Log(PhotonNetwork.NickName);
-
         string participantName = PhotonNetwork.NickName.Split('_')[1];
 
-        PV.RPC("SetParticipantList", RpcTarget.MasterClient, participantName);
+        PV.RPC("SetParticipantList", RpcTarget.MasterClient, participantName);  //Joining participant sends their name to the host to add to participant list
     }
 
     public static void OnClickDisconnect()
     {
+        Debug.Log("Disconnecting");
         PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("Menu");
     }
 
     public void OnClickStart()
     {
+        Debug.Log("Starting classroom");
+
+        //Only the host can initiate the scene change
         if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.LoadLevel("Classroom");
@@ -53,7 +54,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void SetParticipantList(string participantName)
     {
         PhotonNetwork.Instantiate(Path.Combine("Prefabs/UI", "participantUIAsset"), new Vector3(0,0,0), Quaternion.identity);
-        PV.RPC("ParticipantListHelper", RpcTarget.AllBuffered, participantName);
+        PV.RPC("ParticipantListHelper", RpcTarget.AllBuffered, participantName);    //Update other participants to show the list changes
     }
 
     [PunRPC]

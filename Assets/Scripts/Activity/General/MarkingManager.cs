@@ -5,6 +5,10 @@ using UnityEngine;
 
 public class MarkingManager : MonoBehaviour
 {
+    /// <summary>
+    /// This script file starts and manages the both peer and group marking activities
+    /// </summary>
+
     [SerializeField] public Canvas markingCanvas;
     [SerializeField] public Transform markingPrefabGroup;
     [SerializeField] public GameObject groupMarkPrefab, peerMarkPrefab;
@@ -24,6 +28,7 @@ public class MarkingManager : MonoBehaviour
         participant = GameObject.Find("CurrentParticipant");
     }
 
+    //Start the relevant marking activity (either group or peer)
     public void StartMarkingActivity(string activityName, int numberOfGroups)
     {
         LineGen.CanDraw(false);     //Ensure that students cannot draw
@@ -48,6 +53,9 @@ public class MarkingManager : MonoBehaviour
         Debug.Log("Marking Activity Ended");
     }
 
+    //Depending on the marking activity chosen, instantiate the relevant marking UI's
+    //Example the whiteboard group marking activity will instantiate the group mark prefab, allowing
+    //for students to mark work produced by other groups but not their own
     public void InstantiateUIAssets()
     {
         if (str_activityName.Equals("whiteboard"))
@@ -87,6 +95,7 @@ public class MarkingManager : MonoBehaviour
         }
     }
 
+    //Once the submit button has been pressed, package the inputted marks into an array to be sent to the teacher
     public void AssignMarks()
     {
         //Wanted to do this with a custom type called Marks that had several sections
@@ -139,12 +148,13 @@ public class MarkingManager : MonoBehaviour
                 }
 
                 Debug.Log("Marks Submitted");
-                PV.RPC("SubmitMarks", RpcTarget.Others, "addMarksPeer", m);
+                PV.RPC("SubmitMarks", RpcTarget.Others, "addMarksPeer", m); //Send the marks to all other clients, incase there is more than one teacher
                 index++;
             }
         }
     }
 
+    //Function assigns the marks to a list handled by the teacher(s)
     [PunRPC]
     public void SubmitMarks(string listType, string[] outGoingMarkList)
     {

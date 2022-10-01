@@ -16,6 +16,7 @@ public class WhiteboardManager : MonoBehaviour
         participant = GameObject.Find("CurrentParticipant");
     }
 
+    //Allow students to draw
     public void SetActive(bool state)
     {
         Awake();
@@ -39,6 +40,7 @@ public class WhiteboardManager : MonoBehaviour
 
     }
 
+    //Change the current participants camera, to the camera above their groups table
     public void SetCamera(bool state)
     {
         int int_ParticipantGroupID = participant.GetComponent<GroupData>().GetGroupID() - 1;    //Create an int to make the camera selection more dynamic

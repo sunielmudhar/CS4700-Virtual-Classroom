@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class GroupData : MonoBehaviour
 {
+    /// <summary>
+    /// Following script file creates and assigns a group value to game objects such as
+    /// tables and students
+    /// </summary>
+
     [SerializeField] private int int_GroupID = 0;
 
     public void SetGroupID(int int_ID)

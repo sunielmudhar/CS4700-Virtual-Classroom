@@ -1,16 +1,16 @@
 using UnityEngine;
 
 public class TableScript : MonoBehaviour
-{   
-    public Transform[] chairPoint;
-    public Vector3 sittingPlace;
-
+{
     /// <summary>
     /// Seat the participant (Can be student or teacher)
     /// If a specific chair point has been sent, then position the participant at that chair point
     /// If no spcific chair point has been supplied, then find the next available chair for the participant to sit in
     /// else statement is mainly used to update other student positions (RPC from line 320 of Teacher Panel script)
     /// </summary>
+
+    public Transform[] chairPoint;
+    public Vector3 sittingPlace;
     
     public int Position(GameObject participant, int sentChairPoint)
     {

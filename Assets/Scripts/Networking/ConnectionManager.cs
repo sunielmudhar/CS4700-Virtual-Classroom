@@ -28,8 +28,6 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
     /*
      *Following functions will redirect users to the right scene, and depending on which button they press, will idenfity them as either a teacher or student
      *Manipulates the nickname as the teacher can then add more teachers to a class, which will manipulate their permissions by adding "Teacher_" to their photon name
-     *
-     *Change so they have to set up the room first, then press create room which will gen the code and create the lobby
     */
 
     public void OnClickCreate()
@@ -54,7 +52,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     public void OnClickCreateRoom()
     {
-        GenerateRoomCode();
+        GenerateRoomCode(); //Generate the unique room code for the students to join
         Debug.Log("Room code is: " + str_RoomCode);
         PhotonNetwork.CreateRoom(str_RoomCode, new Photon.Realtime.RoomOptions() { MaxPlayers = byte.Parse(intxt_NumberOfParticipants.text) });
     }
@@ -88,6 +86,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     }
 
+    //Create a 7 character room code
     public void GenerateRoomCode()
     {
         char[] characters = "abcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();

@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class StudentPanel : MonoBehaviour
 {
+    /// <summary>
+    /// Student panel functionality, assigns the manage panel function to buttons
+    /// and depending on the type of button pressed, it manipulates the relevant panel/canvases
+    /// </summary>
+
     [SerializeField] GameObject participant;
     [SerializeField] Canvas markingCanvas, activityCanvas, studentPanelCanvas;
 
