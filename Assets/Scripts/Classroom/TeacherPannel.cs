@@ -311,26 +311,23 @@ public class TeacherPannel : MonoBehaviour
 
             if (position.Equals("sit") && student.tag.Equals("Student"))
             {
-                if (student.GetComponent<GroupData>().GetGroupID() == 1)
+                for (int i = 0; i < 4; i++)
                 {
-                    index = tableGroup[0].GetComponent<TableScript>().Position(student, -1);
-                }
-                else if (student.GetComponent<GroupData>().GetGroupID() == 2)
-                {
-                    index = tableGroup[1].GetComponent<TableScript>().Position(student, -1);
-                }
-                else if (student.GetComponent<GroupData>().GetGroupID() == 3)
-                {
-                    index = tableGroup[2].GetComponent<TableScript>().Position(student, -1);
-                }
-                else if (student.GetComponent<GroupData>().GetGroupID() == 4)
-                {
-                    index = tableGroup[3].GetComponent<TableScript>().Position(student, -1);
+                    if (student.GetComponent<GroupData>().GetGroupID() == i + 1)
+                    {
+                        index = tableGroup[i].GetComponent<TableScript>().Position(student, -1);
+                    }
                 }
             }
             else if (position.Equals("stand"))
             {
-                tableGroup[0].GetComponent<TableScript>().StandUp(student); //Just need to trigger 1 table group not all of them
+                for (int i = 0; i < 4; i++)
+                {
+                    if (student.GetComponent<GroupData>().GetGroupID() == i + 1)
+                    {
+                        tableGroup[i].GetComponent<TableScript>().StandUp(student); //Just need to trigger 1 table group not all of them
+                    }
+                }
             }
 
             PV.RPC("PositionParticipant", RpcTarget.Others, position, student.GetComponent<Participant>().CheckData("refCode"), index);
@@ -344,26 +341,23 @@ public class TeacherPannel : MonoBehaviour
         {
             if (position.Equals("sit"))
             {
-                if (participant.GetComponent<GroupData>().GetGroupID() == 1)
+                for (int i = 0; i < 4; i++)
                 {
-                    tableGroup[0].GetComponent<TableScript>().Position(participant, chair);
-                }
-                else if (participant.GetComponent<GroupData>().GetGroupID() == 2)
-                {
-                    tableGroup[1].GetComponent<TableScript>().Position(participant, chair);
-                }
-                else if (participant.GetComponent<GroupData>().GetGroupID() == 3)
-                {
-                    tableGroup[2].GetComponent<TableScript>().Position(participant, chair);
-                }
-                else if (participant.GetComponent<GroupData>().GetGroupID() == 4)
-                {
-                    tableGroup[3].GetComponent<TableScript>().Position(participant, chair);
+                    if (participant.GetComponent<GroupData>().GetGroupID() == i + 1)
+                    {
+                        tableGroup[i].GetComponent<TableScript>().Position(participant, chair);
+                    }
                 }
             }
             else if (position.Equals("stand"))
             {
-                tableGroup[0].GetComponent<TableScript>().StandUp(participant);
+                for (int i = 0; i < 4; i++)
+                {
+                    if (participant.GetComponent<GroupData>().GetGroupID() == i + 1)
+                    {
+                        tableGroup[i].GetComponent<TableScript>().StandUp(participant);
+                    }
+                }
             }
         }
     }
