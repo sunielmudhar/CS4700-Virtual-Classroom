@@ -138,7 +138,7 @@ public class MarkingManager : MonoBehaviour
                 m[2] = participant.GetComponent<GroupData>().GetGroupID().ToString();
                 m[3] = student.GetComponent<Participant>().CheckData("name");
 
-                if (intxt_Feedback[index] != null)
+                if (intxt_Feedback[index] != null || !intxt_Feedback[index].Equals(""))
                 {
                     m[4] = intxt_Feedback[index].GetComponentInChildren<TMP_InputField>().text;
                 }

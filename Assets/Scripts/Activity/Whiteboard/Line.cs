@@ -8,6 +8,8 @@ public class Line : MonoBehaviour
     private int int_LineRef;
     List<Vector3> linePoints;
 
+    //Produced with help of /* https://www.youtube.com/watch?v=D0ENg1dQN64 */
+
     //Generates a line reference used to uniquely identify each line that has been generated
     public void GenerateRef()
     {

@@ -11,6 +11,8 @@ public class LineGen : MonoBehaviour
     /// Using a list and line reference allows multiple clients to draw at the same time 
     /// </summary>
 
+    /* Produced with help of https://www.youtube.com/watch?v=D0ENg1dQN64 */
+
     [SerializeField] public GameObject linePrefab, participant, line;
     [SerializeField] public Line currentLine;
     [SerializeField] List<Line> currentLineList = new List<Line>();

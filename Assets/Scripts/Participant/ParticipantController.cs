@@ -4,6 +4,7 @@ using Photon.Pun;
 public class ParticipantController : MonoBehaviour
 {
     // This script will handle all of the participant's movement and transformation
+    /*Created with help of https://www.youtube.com/watch?v=AZRdwnBJcfg&t */
 
     [SerializeField] float fl_MouseSensitivity, fl_MovementSpeed, fl_SmoothTime;
     [SerializeField] GameObject cameraHolder;

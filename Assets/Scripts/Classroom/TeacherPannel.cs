@@ -381,7 +381,7 @@ public class TeacherPannel : MonoBehaviour
     //Method is called when looking to modify a particular list, such as the marks list or student list
     public static void ModifyList(string listType, string[] submittedStudentMark, string participantRef)
     {
-        if (listType.Equals("AddMarksPeer") || listType.Equals("AddMarksGroup"))
+        if (listType.Equals("addMarksPeer") || listType.Equals("addMarksGroup"))
         {
             markList.Add(submittedStudentMark);
             Debug.Log("Marks Submitted");
