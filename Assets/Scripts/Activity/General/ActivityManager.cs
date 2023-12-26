@@ -21,19 +21,7 @@ public class ActivityManager : MonoBehaviour
 
     public void StartActivity(string activityName, string activityText, int numberOfGroups, float timerValue)
     {
-        if (activityName.Equals("whiteboard"))
-        {
-            PV.RPC("ActivityInitialiser", RpcTarget.All, activityName, true, 0);
-        }
-        else if (activityName.Equals("whiteboardMarking"))
-        {
-            PV.RPC("ActivityInitialiser", RpcTarget.All, activityName, true, numberOfGroups);
-        }
-        else if (activityName.Equals("peerAssessment"))
-        {
-            PV.RPC("ActivityInitialiser", RpcTarget.All, activityName, true, numberOfGroups);
-        }
-
+        PV.RPC("ActivityInitialiser", RpcTarget.All, activityName, true, 0);
         PV.RPC("AssetInitialiser", RpcTarget.All, activityText, timerValue);
     }
 
@@ -47,39 +35,41 @@ public class ActivityManager : MonoBehaviour
     [PunRPC]
     public void ActivityInitialiser(string activityName, bool state, int numberOfGroups)
     {
-        if (activityName.Equals("whiteboard"))
+        switch (activityName)
         {
-            if (state)
-            {
-                whiteboard.GetComponentInChildren<WhiteboardManager>().SetActive(true);
-
-            }
-            else if (!state)
-            {
-                whiteboard.GetComponentInChildren<WhiteboardManager>().SetActive(false);
-            }
-        }
-        else if (activityName.Equals("whiteboardMarking"))
-        {
-            if (state)
-            {
-                markingManager.GetComponent<MarkingManager>().StartMarkingActivity("whiteboard", numberOfGroups);
-            }
-            else if (!state)
-            {
-                markingManager.GetComponent<MarkingManager>().EndMarkingActivity("endWhiteboard");
-            }
-        }
-        else if (activityName.Equals("peerAssessment"))
-        {
-            if (state)
-            {
-                markingManager.GetComponent<MarkingManager>().StartMarkingActivity("peerAssessment", numberOfGroups);
-            }
-            else if (!state)
-            {
-                markingManager.GetComponent<MarkingManager>().EndMarkingActivity("endPeerAssessment");
-            }
+            case "whiteboard":
+                if (state)
+                {
+                    whiteboard.GetComponentInChildren<WhiteboardManager>().SetActive(true);
+                }
+                else
+                {
+                    whiteboard.GetComponentInChildren<WhiteboardManager>().SetActive(false);
+                }
+                break;
+            case "whiteboardMarking":
+                if (state)
+                {
+                    markingManager.GetComponent<MarkingManager>().StartMarkingActivity("whiteboard", numberOfGroups);
+                }
+                else
+                {
+                    markingManager.GetComponent<MarkingManager>().EndMarkingActivity("endWhiteboard");
+                }
+                break;
+            case "peerAssessment":
+                if (state)
+                {
+                    markingManager.GetComponent<MarkingManager>().StartMarkingActivity("peerAssessment", numberOfGroups);
+                }
+                else
+                {
+                    markingManager.GetComponent<MarkingManager>().EndMarkingActivity("endPeerAssessment");
+                }
+                break;
+            default:
+                Debug.Log("Defaulted to no activity case");
+                break;
         }
     }
 

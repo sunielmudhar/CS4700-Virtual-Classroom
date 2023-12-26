@@ -88,26 +88,20 @@ public class Participant : MonoBehaviour
 
     public string CheckData(string parameter)
     {
-        if (parameter.Equals("name"))
+        switch (parameter)
         {
-            return str_ParticipantName;
-        }
-        else if (parameter.Equals("type"))
-        {
-            return str_ParticipantType;
-        }
-        else if (parameter.Equals("meshCode"))
-        {
-            return str_ParticipantMeshCode;
-        }
-        else if (parameter.Equals("refCode"))
-        {
-            return str_ParticipantRefCode;
-        }
-        else
-        {
-            return null;
-        }               
+            case "name":
+                return str_ParticipantName;
+            case "type":
+                return str_ParticipantType;
+            case "meshCode":
+                return str_ParticipantMeshCode;
+            case "refCode":
+                return str_ParticipantRefCode;
+            default:
+                Debug.Log("Err check data parameter not found!");
+                return null;
+        }        
     }
 
     public void UpdateData(string parameter, int index)

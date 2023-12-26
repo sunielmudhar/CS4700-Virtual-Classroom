@@ -47,7 +47,7 @@ public class TableScript : MonoBehaviour
         participant.transform.position = Vector3.Lerp(participant.transform.position, chair.position + sittingPlace, 1);
         participant.transform.rotation = Quaternion.Slerp(participant.transform.rotation, chair.rotation, 1);
 
-        chair.GetComponent<InteractionPointManager>().Occupy(true);
+        chair.GetComponent<InteractionPointManager>().Occupy(true, participant.GetComponent<Participant>().CheckData("refCode"));
 
     }
 
@@ -55,15 +55,15 @@ public class TableScript : MonoBehaviour
     {
         foreach (Transform chair in chairPoint)
         {
-            FreeChair(chair);
+            if (participant.GetComponent<Participant>().CheckData("refCode").Equals(chair.GetComponent<InteractionPointManager>().GetRefCode()))
+                FreeChair(chair);
         }
-        
         participant.GetComponent<ParticipantController>().InActivity(0);
     }
 
     //Need to call this method from the foreach loop as cannot modify variables within an iteration
     public void FreeChair(Transform chair)
     {
-        chair.GetComponent<InteractionPointManager>().Occupy(false);
+        chair.GetComponent<InteractionPointManager>().Occupy(false, null);
     }
 }

@@ -3,7 +3,6 @@ using Photon.Pun;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections.Generic;
-using System;
 
 public class TeacherPannel : MonoBehaviour
 {
@@ -70,24 +69,24 @@ public class TeacherPannel : MonoBehaviour
             CheckMovementState(action);
         }
 
-        if (panelName.Equals("teacherPanel"))
+        switch (panelName)
         {
-            teacherPanelCanvas.gameObject.SetActive(state);
-        }
-        else if (panelName.Equals("notificationsPanel"))
-        {
-            notificationsManager.SetActive(state);
-        }
-        else if (panelName.Equals("joinTablePanel"))
-        {
-            joinTableCanvas.gameObject.SetActive(state);
-        }
-        else if (panelName.Equals("all"))
-        {
-            teacherPanelCanvas.gameObject.SetActive(state);
-            notificationsManager.SetActive(state);
-            joinTableCanvas.gameObject.SetActive(state);
-            bl_ActivityManagerOpen = state;
+            case "teacherPanel":
+                teacherPanelCanvas.gameObject.SetActive(state);
+                break;
+            case "notificationsPanel":
+                notificationsManager.SetActive(state);
+                break;
+            case "joinTablePanel":
+                joinTableCanvas.gameObject.SetActive(state);
+                break;
+            default:    //Maybe need to switch to all...
+                teacherPanelCanvas.gameObject.SetActive(state);
+                notificationsManager.SetActive(state);
+                joinTableCanvas.gameObject.SetActive(state);
+                bl_ActivityManagerOpen = state;
+                break;
+
         }
     }
 
@@ -114,57 +113,60 @@ public class TeacherPannel : MonoBehaviour
             Debug.Log("Please enter a valid time in hours");
         }
 
-        if (btnType.Equals("whiteboard"))
+        switch (btnType)
         {
-            int_NumberOfGroups = int.Parse(intxt_NumberOfGroups.text);
+            case "whiteboard":
+                int_NumberOfGroups = int.Parse(intxt_NumberOfGroups.text);
 
-            if (int_NumberOfGroups > 4 || int_NumberOfGroups == 0 || int_NumberOfGroups < 0) //Limiting the max number of groups due to the classroom size and tables in the scene
-            {
-                Debug.LogError("Please enter a number between 1 and 4");
-            }
-            else if (int_NumberOfGroups == 1 && studentsList.Count > 7)
-            {
-                Debug.LogError("Only 6 students are allowed in a group");
-            }
-            else
-            {
-                str_CurrentTask = "whiteboard";
-                btn_StartWBA.gameObject.SetActive(false);
-                btn_EndWBA.gameObject.SetActive(true);
-                PopulateLists();
-                CreateGroups();
-                PositionStudents("sit");
-            }
-        }
-        else if (btnType.Equals("whiteboardMarking"))
-        {
-            if (str_CurrentTask.Equals("EndWhiteboard"))    //Check if whiteboard task has ended
-            {
-                btn_StartWBA.gameObject.SetActive(false);
-                btn_StartWM.gameObject.SetActive(false);
-                btn_StartPM.gameObject.SetActive(false);
-                btn_EndWM.gameObject.SetActive(true);
-                str_CurrentTask = "MarkingWhiteBoard";
-            }
-            else
-            {
-                Debug.LogError("Unable to start whiteboard marking task without first starting whiteboard task");
-            }
-        }
-        else if (btnType.Equals("peerAssessment"))
-        {
-            if (str_CurrentTask.Equals("EndWhiteboard") || str_CurrentTask.Equals("EndWhiteboardMarking"))
-            {
-                btn_StartWBA.gameObject.SetActive(false);
-                btn_StartWM.gameObject.SetActive(false);
-                btn_StartPM.gameObject.SetActive(false);
-                btn_EndPM.gameObject.SetActive(true);
-                str_CurrentTask = "PeerMarking";
-            }
-            else
-            {
-                Debug.LogError("Unable to start peer marking task without first starting whiteboard task");
-            }
+                if (int_NumberOfGroups > 4 || int_NumberOfGroups == 0 || int_NumberOfGroups < 0) //Limiting the max number of groups due to the classroom size and tables in the scene
+                {
+                    Debug.LogError("Please enter a number between 1 and 4");
+                }
+                else if (int_NumberOfGroups == 1 && studentsList.Count > 7)
+                {
+                    Debug.LogError("Only 6 students are allowed in a group");
+                }
+                else
+                {
+                    str_CurrentTask = "whiteboard";
+                    btn_StartWBA.gameObject.SetActive(false);
+                    btn_EndWBA.gameObject.SetActive(true);
+                    PopulateLists();
+                    CreateGroups();
+                    PositionStudents("sit");
+                }
+                break;
+            case "whiteboardMarking":
+                if (str_CurrentTask.Equals("EndWhiteboard"))    //Check if whiteboard task has ended
+                {
+                    btn_StartWBA.gameObject.SetActive(false);
+                    btn_StartWM.gameObject.SetActive(false);
+                    btn_StartPM.gameObject.SetActive(false);
+                    btn_EndWM.gameObject.SetActive(true);
+                    str_CurrentTask = "whiteboardMarking";
+                }
+                else
+                {
+                    Debug.LogError("Unable to start whiteboard marking task without first starting whiteboard task");
+                }
+                break;
+            case "peerAssessment":
+                if (str_CurrentTask.Equals("EndWhiteboard") || str_CurrentTask.Equals("EndWhiteboardMarking"))
+                {
+                    btn_StartWBA.gameObject.SetActive(false);
+                    btn_StartWM.gameObject.SetActive(false);
+                    btn_StartPM.gameObject.SetActive(false);
+                    btn_EndPM.gameObject.SetActive(true);
+                    str_CurrentTask = "peerAssessment";
+                }
+                else
+                {
+                    Debug.LogError("Unable to start peer marking task without first starting whiteboard task");
+                }
+                break;
+            default:
+                Debug.Log("Func StartActivity has invalid Activity type.");
+                break;
         }
 
         activityManager.GetComponent<ActivityManager>().StartActivity(btnType, intxt_Activity.text, int_NumberOfGroups, float.Parse(intxt_TimerValue.text));
@@ -174,56 +176,33 @@ public class TeacherPannel : MonoBehaviour
     //If triggered, end the relevant activity
     public void TimerEnded()
     {
-        string actType;
-
         Debug.Log("TimerEnded function has been triggered");
 
-        if (str_CurrentTask.Equals("whiteboard"))
-        {
-            actType = "whiteboard";
-        }
-        else if (str_CurrentTask.Equals("MarkingWhiteBoard"))
-        {
-            actType = "whiteboardMarking";
-        }
-        else if (str_CurrentTask.Equals("PeerMarking"))
-        {
-            actType = "peerAssessment";
-        }
-        else
-        {
-            actType = null;
-        }
-
-        EndActivity(actType);
+        EndActivity(str_CurrentTask);
     }
 
     [PunRPC]
     public void EndActivity(string btnType)
     {
-        if (btnType.Equals("whiteboard"))
+        btn_StartWBA.gameObject.SetActive(true);
+        btn_StartWM.gameObject.SetActive(true);
+        btn_StartPM.gameObject.SetActive(true);
+
+        switch (btnType)
         {
-            btn_StartWBA.gameObject.SetActive(true);
-            btn_StartWM.gameObject.SetActive(true);
-            btn_StartPM.gameObject.SetActive(true);
-            btn_EndWBA.gameObject.SetActive(false);
-            str_CurrentTask = "EndWhiteboard";
-        }
-        else if (btnType.Equals("whiteboardMarking"))
-        {
-            btn_StartWBA.gameObject.SetActive(true);
-            btn_StartWM.gameObject.SetActive(true);
-            btn_StartPM.gameObject.SetActive(true);
-            btn_EndWM.gameObject.SetActive(false);
-            str_CurrentTask = "EndWhiteboardMarking";
-        }
-        else if (btnType.Equals("peerAssessment"))
-        {
-            btn_StartWBA.gameObject.SetActive(true);
-            btn_StartWM.gameObject.SetActive(true);
-            btn_StartPM.gameObject.SetActive(true);
-            btn_EndPM.gameObject.SetActive(false);
-            str_CurrentTask = "EndPeerMarking";
+            case "whiteboard":
+                str_CurrentTask = "EndWhiteboard";
+                btn_EndWBA.gameObject.SetActive(false);
+                break;
+            case "whiteboardMarking":
+                str_CurrentTask = "EndWhiteboardMarking";
+                btn_EndWM.gameObject.SetActive(false);
+                break;
+            case "peerAssessment":
+                str_CurrentTask = "EndPeerMarking";
+                btn_EndPM.gameObject.SetActive(false);
+                break;
+
         }
 
         activityManager.GetComponent<ActivityManager>().EndActivity(btnType);
@@ -281,33 +260,23 @@ public class TeacherPannel : MonoBehaviour
     //The initialisation of a task, populating a list, ending an activity
     public void UpdateAllClients()
     {
-        if (str_CurrentTask.Equals("EndWhiteboard"))
+        if (PV.IsMine)
         {
-            if (PV.IsMine)
+            switch (str_CurrentTask)
             {
-                PV.RPC("EndActivity", RpcTarget.Others, "whiteboard");
-                PV.RPC("PositionStudents", RpcTarget.Others, "stand");
-            }
-        }
-        else if (str_CurrentTask.Equals("whiteboard"))
-        {
-            if (PV.IsMine)
-            {
-                PV.RPC("PopulateLists", RpcTarget.Others);
-            }
-        }
-        else if (str_CurrentTask.Equals("EndWhiteboardMarking"))
-        {
-            if (PV.IsMine)
-            {
-                PV.RPC("EndActivity", RpcTarget.Others, "whiteboardMarking");
-            }
-        }
-        else if (str_CurrentTask.Equals("EndPeerMarking"))
-        {
-            if (PV.IsMine)
-            {
-                PV.RPC("EndActivity", RpcTarget.Others, "peerAssessment");
+                case "EndWhiteboard":
+                    PV.RPC("EndActivity", RpcTarget.Others, "whiteboard");
+                    PV.RPC("PositionStudents", RpcTarget.Others, "stand");
+                    break;
+                case "whiteboard":
+                    PV.RPC("PopulateLists", RpcTarget.Others);
+                    break;
+                case "EndWhiteboardMarking":
+                    PV.RPC("EndActivity", RpcTarget.Others, "whiteboardMarking");
+                    break;
+                case "EndPeerMarking":
+                    PV.RPC("EndActivity", RpcTarget.Others, "peerAssessment");
+                    break;
             }
         }
     }

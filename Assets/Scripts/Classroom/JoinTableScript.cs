@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 
 public class JoinTableScript : MonoBehaviour
@@ -18,23 +19,7 @@ public class JoinTableScript : MonoBehaviour
     //Function is attached to a table button, and takes a string input which will be used to assign the teachers group number
     public void OnClickJoinTable(string tableNumber)
     {
-        if (tableNumber.Equals("1"))
-        {
-            participant.GetComponent<GroupData>().SetGroupID(1);
-        }
-        else if (tableNumber.Equals("2"))
-        {
-            participant.GetComponent<GroupData>().SetGroupID(2);
-        }
-        else if (tableNumber.Equals("3"))
-        {
-            participant.GetComponent<GroupData>().SetGroupID(3);
-        }
-        else if (tableNumber.Equals("4"))
-        {
-            participant.GetComponent<GroupData>().SetGroupID(4);
-        }
-
+        participant.GetComponent<GroupData>().SetGroupID(int.Parse(tableNumber));
         teacherPanel.GetComponent<TeacherPannel>().ManagePanels("all_close");   //Close all panels, this also fixes the issue with resetting the bl_CanMove status back to 0
         teacherPanel.GetComponent<TeacherPannel>().PositionParticipant("sit", participant.GetComponent<Participant>().CheckData("refCode"), -1);
 

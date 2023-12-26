@@ -13,15 +13,7 @@ public class ModelSelection : MonoBehaviour
 
     public void OnClickArrow(int index)
     {
-        if (index == 1)
-        {
-            int_ModelNumber = int_ModelNumber + 1;
-        }
-        else
-        {
-            int_ModelNumber = int_ModelNumber - 1;
-        }
-
+        int_ModelNumber = int_ModelNumber + index;
         ModelSelect(int_ModelNumber);
     }
 

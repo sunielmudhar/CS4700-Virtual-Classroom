@@ -5,6 +5,7 @@ using UnityEngine;
 public class Permissions : MonoBehaviour
 {
     /*This script file will firstly check what type of participant is trying to access a perm, before allowing them to use the perm*/
+    /*Unused script*/
 
     public void CheckParticipantType(string permType) 
     {

@@ -50,24 +50,23 @@ public class StudentPanel : MonoBehaviour
             CheckMovementState(action);
         }
 
-        if (panelName.Equals("studentPanel"))
+        switch (panelName)
         {
-            studentPanelCanvas.gameObject.SetActive(state);
-        }
-        else if (panelName.Equals("activityPanel"))
-        {
-            activityCanvas.gameObject.SetActive(state);
-        }
-        else if (panelName.Equals("markingPanel"))
-        {
-            markingCanvas.gameObject.SetActive(state);
-        }
-        else if (panelName.Equals("all"))
-        {
-            studentPanelCanvas.gameObject.SetActive(state);
-            activityCanvas.gameObject.SetActive(state);
-            markingCanvas.gameObject.SetActive(state);
-            bl_PanelOpen = false;
+            case "studentPanel":
+                studentPanelCanvas.gameObject.SetActive(state);
+                break;
+            case "activityPanel":
+                activityCanvas.gameObject.SetActive(state);
+                break;
+            case "markingPanel":
+                markingCanvas.gameObject.SetActive(state);
+                break;
+            default:    //Maybe need to have a final case for all...
+                studentPanelCanvas.gameObject.SetActive(state);
+                activityCanvas.gameObject.SetActive(state);
+                markingCanvas.gameObject.SetActive(state);
+                bl_PanelOpen = false;
+                break;
         }
     }
 
